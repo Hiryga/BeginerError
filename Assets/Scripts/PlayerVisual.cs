@@ -8,7 +8,7 @@ public class PlayerVisual : MonoBehaviour
     private SpriteRenderer spriteRenderer;
 
     private const string IS_RUNNING = "IsRunning";
-
+    
     private void Awake() {
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
