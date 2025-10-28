@@ -37,6 +37,8 @@ public class Player : MonoBehaviour {
     private void FixedUpdate() {
         HandleMovement();
     }
+    
+
 
     public bool IsAlive() => _isAlive;
 
@@ -70,6 +72,6 @@ public class Player : MonoBehaviour {
         Vector3 playerScrreenPosition = Camera.main.WorldToScreenPoint(transform.position);
         return playerScrreenPosition;
     }
+    
 
-  
 }
