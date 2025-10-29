@@ -43,11 +43,15 @@ public class PlayerVisual : MonoBehaviour
         Vector3 mousePos = GameInput.Instance.GetMousePosition();
         Vector3 playerPosition = Player.Instance.GetPlayerScreenPosition();
 
-        if (mousePos.x < playerPosition.x) {
-            spriteRenderer.flipX = true;
-        }
-        else {
-            spriteRenderer.flipX = false;
+        bool shouldFlip = mousePos.x < playerPosition.x;
+        spriteRenderer.flipX = shouldFlip;
+
+        // ≈сли у меча нет спрайта, просто зеркалим его localScale.x
+        if (_sword != null)
+        {
+            Vector3 localScale = _sword.transform.localScale;
+            localScale.x = shouldFlip ? -Mathf.Abs(localScale.x) : Mathf.Abs(localScale.x);
+            _sword.transform.localScale = localScale;
         }
     }
 }
