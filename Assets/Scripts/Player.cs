@@ -11,7 +11,7 @@ public class Player : MonoBehaviour {
     Vector2 inputVector;
 
     private Rigidbody2D rb;
-    private PolygonCollider2D _polygonCollider2D;
+
 
     private float minMovingSpeed = 0.1f;
     private bool isRunning = false;
@@ -21,7 +21,7 @@ public class Player : MonoBehaviour {
     private void Awake() {
         Instance = this;    
         rb = GetComponent<Rigidbody2D>();
-        _polygonCollider2D = GetComponent<PolygonCollider2D>();
+
     }
 
     private void Start()
@@ -50,19 +50,7 @@ public class Player : MonoBehaviour {
             isRunning = false;
         }
     }
-    public void OnTrigerEnter2d()
-    {
-        Debug.Log("Attack");
-    }
-    public void PolygonColliderTurnOff()
-    {
-        _polygonCollider2D.enabled = false;
-    }
 
-    public void PolygonColliderTurnOn()
-    {
-        _polygonCollider2D.enabled = true;
-    }
 
     public bool IsRunning() {
         return isRunning;

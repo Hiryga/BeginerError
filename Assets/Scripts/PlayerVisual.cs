@@ -5,6 +5,8 @@ using UnityEngine;
 public class PlayerVisual : MonoBehaviour
 {
     [SerializeField] private Player _player;
+    [SerializeField] private Sword _sword;
+
     private Animator animator;
     private SpriteRenderer spriteRenderer;
 
@@ -27,14 +29,14 @@ public class PlayerVisual : MonoBehaviour
         }
     }
 
-    public void TriggerAttackAnimationTurnOff()
-    {
-        _player.PolygonColliderTurnOff();
-    }
-
     public void TriggerAttackAnimationTurnOn()
     {
-        _player.PolygonColliderTurnOn();
+        _sword.AttackColliderTurnOn();
+    }
+
+    public void TriggerAttackAnimationTurnOff()
+    {
+        _sword.AttackColliderTurnOff();
     }
 
     private void AdjustPlayerFacingDirection() {
