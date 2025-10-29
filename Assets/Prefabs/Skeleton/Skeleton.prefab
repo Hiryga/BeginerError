@@ -74,7 +74,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 90
   m_Sprite: {fileID: -1575410051, guid: 856eed2ac5199d34f8a0a485efc05cd0, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -174,12 +174,12 @@ MonoBehaviour:
   startingState: 1
   roamingDistanceMax: 7
   roamimgDistanceMin: 3
-  roamimgTimerMax: 10
+  roamimgTimerMax: 6
   isChasingEnemy: 1
-  chasingDistance: 4
+  chasingDistance: 15
   chasingSpeedMultiplier: 2
   isAttackingEnemy: 1
-  attackingDistance: 2
+  attackingDistance: 5
   attackRate: 1
 --- !u!114 &3188652749088880178
 MonoBehaviour:
@@ -193,7 +193,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfeaa4a6e78ae104580f35f3d6ab4ef2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxHealth: 20
+  _maxHealth: 10
 --- !u!60 &520516672878802816
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -223,7 +223,7 @@ PolygonCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -286,7 +286,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 1
-  m_Speed: 5
+  m_Speed: 3
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
@@ -327,7 +327,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0.7637942, y: 1.9581114}
