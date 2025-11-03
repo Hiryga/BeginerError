@@ -34,7 +34,7 @@ public class TutorialController : MonoBehaviour
         yield return new WaitForSeconds(1f);
 
         // Шаг 1: Движение
-        yield return StartCoroutine(ShowMessage("Используй WASD или стрелки, чтобы двигаться", displayTime));
+        yield return StartCoroutine(ShowMessage("Используй WASD или стрелки, чтобы двигаться", displayTime + 1f));
 
         // Шаг 2: Атака
         yield return StartCoroutine(ShowMessage("ЛКМ — атака. Целься мышью!", displayTime));
