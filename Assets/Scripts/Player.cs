@@ -7,22 +7,30 @@ public class Player : MonoBehaviour {
 
     public static Player Instance { get; private set; }
 
+
     [SerializeField] private float moveSpeed = 5f;
     Vector2 inputVector;
 
     private Rigidbody2D rb;
 
-
     private float minMovingSpeed = 0.1f;
     private bool isRunning = false;
 
-    private bool _isAlive;
+    private PlayerHealth playerHealth;
 
-    private void Awake() {
-        Instance = this;    
+    private void Awake()
+    {
+        Instance = this;
         rb = GetComponent<Rigidbody2D>();
-
+        playerHealth = GetComponent<PlayerHealth>();
     }
+
+    public void TakeDamage(int damage)
+    {
+        playerHealth.TakeDamage(damage);
+    }
+
+    private bool _isAlive;
 
     private void Start()
     {

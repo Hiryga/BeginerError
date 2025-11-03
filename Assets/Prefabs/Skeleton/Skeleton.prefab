@@ -180,7 +180,7 @@ MonoBehaviour:
   chasingSpeedMultiplier: 2
   isAttackingEnemy: 1
   attackingDistance: 5
-  attackRate: 1
+  attackRate: 2
 --- !u!114 &3188652749088880178
 MonoBehaviour:
   m_ObjectHideFlags: 0

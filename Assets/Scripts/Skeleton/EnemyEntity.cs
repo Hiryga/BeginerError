@@ -34,6 +34,10 @@ public class EnemyEntity : MonoBehaviour
     public void TakeDamage(int damage)
     {
         _currentHealth -= damage;
+
+        // ยÛยฮฤ ย สฮอัฮหÜ
+        Debug.Log($"[Enemy] {gameObject.name} HP: {_currentHealth}/{_maxHealth}");
+
         OnTakeHit?.Invoke(this, EventArgs.Empty);
         DetectDeath();
     }

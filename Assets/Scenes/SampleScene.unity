@@ -1513,6 +1513,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 628e058648f4022468564d58999e677d, type: 3}
+--- !u!1 &514477765 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4436643014202763952, guid: 15e8a9b7be32f504992148293aa30a2b, type: 3}
+  m_PrefabInstance: {fileID: 36188511298133919}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &594705898
 GameObject:
   m_ObjectHideFlags: 0
@@ -110824,6 +110829,19 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3227027508099832458, guid: 15e8a9b7be32f504992148293aa30a2b, type: 3}
   m_PrefabInstance: {fileID: 36188511298133919}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1731123613
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 514477765}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d669d26606c3f664ca792e678b50633b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxHealth: 10
 --- !u!1 &1770918610
 GameObject:
   m_ObjectHideFlags: 0
@@ -111440,6 +111458,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 6474875408973156038, guid: 15e8a9b7be32f504992148293aa30a2b, type: 3}
+    - {fileID: 3660758828804712883, guid: 15e8a9b7be32f504992148293aa30a2b, type: 3}
     m_RemovedGameObjects:
     - {fileID: 7433187635487467722, guid: 15e8a9b7be32f504992148293aa30a2b, type: 3}
     - {fileID: 1565921462020355666, guid: 15e8a9b7be32f504992148293aa30a2b, type: 3}
@@ -111448,6 +111467,9 @@ PrefabInstance:
       insertIndex: 0
       addedObject: {fileID: 437248770}
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4436643014202763952, guid: 15e8a9b7be32f504992148293aa30a2b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1731123613}
     - targetCorrespondingSourceObject: {fileID: 6816201895606693775, guid: 15e8a9b7be32f504992148293aa30a2b, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1445578372}
@@ -111574,6 +111596,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5495532788320119277, guid: 628e058648f4022468564d58999e677d, type: 3}
+      propertyPath: attackRate
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 8654261307596066836, guid: 628e058648f4022468564d58999e677d, type: 3}
       propertyPath: m_LocalPosition.x
       value: -9.68

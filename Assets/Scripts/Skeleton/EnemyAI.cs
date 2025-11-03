@@ -39,6 +39,8 @@ public class EnemyAI : MonoBehaviour
 
     public bool IsRunning => _navMeshAgent.velocity != Vector3.zero;
 
+    public float AttackingDistance => attackingDistance;
+
     private enum State
     {
         Idle,
@@ -159,7 +161,6 @@ public class EnemyAI : MonoBehaviour
         if (Time.time > _nextAttackTime)
         {
             OnEnemyAttack?.Invoke(this, EventArgs.Empty);
-
             _nextAttackTime = Time.time + attackRate;
         }
     }
@@ -199,5 +200,6 @@ public class EnemyAI : MonoBehaviour
     {
         transform.rotation = sourcePosition.x > targetPosition.x ? Quaternion.Euler(0, -180, 0) : Quaternion.Euler(0, 0, 0);
     }
+
 
 }
