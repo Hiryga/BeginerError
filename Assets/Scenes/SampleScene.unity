@@ -1233,7 +1233,7 @@ GameObject:
   - component: {fileID: 423678470}
   - component: {fileID: 423678469}
   - component: {fileID: 423678468}
-  - component: {fileID: 423678467}
+  - component: {fileID: 423678473}
   m_Layer: 5
   m_Name: UICanvas
   m_TagString: Untagged
@@ -1241,22 +1241,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &423678467
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 423678466}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f5d8dfafb8f9044f9eeb1ec80c5c213, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tutorialPanel: {fileID: 1915639670}
-  tutorialText: {fileID: 1516966205}
-  displayTime: 3
-  fadeDuration: 1
 --- !u!114 &423678468
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1356,6 +1340,22 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &423678473
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 423678466}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f5d8dfafb8f9044f9eeb1ec80c5c213, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tutorialPanel: {fileID: 1915639670}
+  tutorialText: {fileID: 1516966205}
+  displayTime: 3
+  fadeDuration: 1
 --- !u!1 &437248769
 GameObject:
   m_ObjectHideFlags: 0
@@ -110887,7 +110887,6 @@ GameObject:
   - component: {fileID: 1915639671}
   - component: {fileID: 1915639674}
   - component: {fileID: 1915639673}
-  - component: {fileID: 1915639672}
   m_Layer: 5
   m_Name: tutorialPanel
   m_TagString: Untagged
@@ -110915,22 +110914,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1915639672
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1915639670}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f5d8dfafb8f9044f9eeb1ec80c5c213, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tutorialPanel: {fileID: 1915639670}
-  tutorialText: {fileID: 1516966205}
-  displayTime: 3
-  fadeDuration: 3
 --- !u!114 &1915639673
 MonoBehaviour:
   m_ObjectHideFlags: 0

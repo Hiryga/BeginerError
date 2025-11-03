@@ -16,7 +16,6 @@ public class TutorialController : MonoBehaviour
         canvasGroup = tutorialPanel.GetComponent<CanvasGroup>();
         if (canvasGroup == null)
             canvasGroup = tutorialPanel.AddComponent<CanvasGroup>();
-
         tutorialPanel.SetActive(false);
     }
 
@@ -31,18 +30,10 @@ public class TutorialController : MonoBehaviour
 
     private IEnumerator ShowTutorialSequence()
     {
-        yield return new WaitForSeconds(1f);
+        yield return ShowMessage("Используй WASD или стрелки, чтобы двигаться", displayTime);
+        yield return ShowMessage("ЛКМ — атака. Целься мышью!", displayTime);
+        yield return ShowMessage("Убей 3 монстров, чтобы пройти уровень!", displayTime);
 
-        // Шаг 1: Движение
-        yield return StartCoroutine(ShowMessage("Используй WASD или стрелки, чтобы двигаться", displayTime + 1f));
-
-        // Шаг 2: Атака
-        yield return StartCoroutine(ShowMessage("ЛКМ — атака. Целься мышью!", displayTime));
-
-        // Шаг 3: Задача
-        yield return StartCoroutine(ShowMessage("Убей 3 монстров, чтобы пройти уровень!", displayTime));
-
-        // Завершаем
         TutorialManager.CompleteTutorial();
     }
 
@@ -50,18 +41,18 @@ public class TutorialController : MonoBehaviour
     {
         tutorialText.text = message;
         tutorialPanel.SetActive(true);
-        yield return StartCoroutine(FadeIn());
+        canvasGroup.alpha = 0;
 
+        yield return FadeIn();
         yield return new WaitForSeconds(time);
+        yield return FadeOut();
 
-        yield return StartCoroutine(FadeOut());
         tutorialPanel.SetActive(false);
     }
 
     private IEnumerator FadeIn()
     {
         float elapsed = 0;
-        canvasGroup.alpha = 0;
         while (elapsed < fadeDuration)
         {
             elapsed += Time.deltaTime;
@@ -74,7 +65,6 @@ public class TutorialController : MonoBehaviour
     private IEnumerator FadeOut()
     {
         float elapsed = 0;
-        canvasGroup.alpha = 1;
         while (elapsed < fadeDuration)
         {
             elapsed += Time.deltaTime;
