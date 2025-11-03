@@ -1,4 +1,4 @@
-# DesingDoc (Beginer-Error)
+# DesignDoc (Beginer-Error)
 
 ## Обозначения
 
