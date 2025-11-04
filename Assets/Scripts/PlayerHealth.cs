@@ -38,6 +38,7 @@ public class PlayerHealth : MonoBehaviour
         OnDeath?.Invoke(this, EventArgs.Empty);
         // Можно добавить: отключить движение, анимацию смерти
         Player.Instance.enabled = false;
+        FindObjectOfType<RestartPanelController>().ShowDeathPanel();
         // Или: GameOver UI
     }
 

@@ -29,11 +29,6 @@ public class EnemyEntity : MonoBehaviour
         _currentHealth = _maxHealth;
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        Debug.Log("Attack");
-    }
-
     public void TakeDamage(int damage)
     {
         _currentHealth -= damage;

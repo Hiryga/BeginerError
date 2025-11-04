@@ -176,11 +176,11 @@ MonoBehaviour:
   roamimgDistanceMin: 3
   roamimgTimerMax: 6
   isChasingEnemy: 1
-  chasingDistance: 15
+  chasingDistance: 10
   chasingSpeedMultiplier: 2
   isAttackingEnemy: 1
-  attackingDistance: 5
-  attackRate: 2
+  attackingDistance: 4
+  attackRate: 1
 --- !u!114 &3188652749088880178
 MonoBehaviour:
   m_ObjectHideFlags: 0

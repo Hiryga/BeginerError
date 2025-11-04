@@ -3,12 +3,14 @@ using UnityEngine.UI;
 
 public class PauseMenu : MonoBehaviour
 {
-    public static bool IsPaused { get; private set; } // Доступен для других скриптов!
+    public static bool IsPaused { get; private set; }
+    public static bool IsPlayerDead { get; private set; } = false;
 
     [Header("UI Elements")]
     [SerializeField] private GameObject pauseMenuUI;
     [SerializeField] private Button resumeButton;
     [SerializeField] private Button quitButton;
+    [SerializeField] private TutorialController tutorialController;
 
     private bool isPaused = false;
 
@@ -23,6 +25,8 @@ public class PauseMenu : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            if (IsPlayerDead) return;
+
             if (!isPaused)
                 Pause();
             else
@@ -35,7 +39,7 @@ public class PauseMenu : MonoBehaviour
         pauseMenuUI.SetActive(true);
         Time.timeScale = 0f;
         isPaused = true;
-        IsPaused = true; // Ставим паузу
+        IsPaused = true;
     }
 
     public void Resume()
@@ -43,7 +47,11 @@ public class PauseMenu : MonoBehaviour
         pauseMenuUI.SetActive(false);
         Time.timeScale = 1f;
         isPaused = false;
-        IsPaused = false; // Снимаем паузу!
+        IsPaused = false;
+
+        // !!! После выхода из меню всегда проверяем и запускаем туториал если галочка активна
+        if (tutorialController != null)
+            tutorialController.ShowTutorialIfEnabled();
     }
 
     public void QuitGame()
@@ -54,5 +62,10 @@ public class PauseMenu : MonoBehaviour
 #else
         Application.Quit();
 #endif
+    }
+
+    public static void SetPlayerDead(bool dead)
+    {
+        IsPlayerDead = dead;
     }
 }
