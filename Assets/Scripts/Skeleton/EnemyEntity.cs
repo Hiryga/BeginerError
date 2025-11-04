@@ -9,6 +9,9 @@ public class EnemyEntity : MonoBehaviour
     public event EventHandler OnTakeHit;
     public event EventHandler OnDeath;
 
+    public int GetCurrentHealth() => _currentHealth;
+    public int GetMaxHealth() => _maxHealth;
+
     [SerializeField] private int _maxHealth;
     private int _currentHealth;
 
