@@ -12,45 +12,46 @@ public class GameInput : MonoBehaviour
 
     public event Action OnPause;
 
-    private PlayerInputActions inputActions;
-    
+    private PlayerInputActions _inputActions;
+
+
+
     private void Awake()
     {
         Instance = this;
-        inputActions = new PlayerInputActions();
-        inputActions.Pause.Pause.performed += ctx => PausePressed();
-        inputActions.Player.Enable(); // <--- ÎÁßÇÀÒÅËÜÍÎ!
-        inputActions.Pause.Enable();  // <--- äëÿ êàðòû Pause (åñëè åñòü Esc)
-        inputActions.Combat.Enable();
+        _inputActions = new PlayerInputActions();
+        _inputActions.Pause.Pause.performed += ctx => PausePressed();
+        _inputActions.Player.Enable(); // <--- ÎÁßÇÀÒÅËÜÍÎ!
+        _inputActions.Pause.Enable();  // <--- äëÿ êàðòû Pause (åñëè åñòü Esc)
+        _inputActions.Combat.Enable();
 
     }
 
     private void PausePressed()
     {
-        Debug.Log("ESC pressed!"); // Äîáàâü äëÿ îòëàäêè
         OnPause?.Invoke();
     }
 
 
     public void DisablePlayerInput()
     {
-        inputActions.Player.Disable();
+        _inputActions.Player.Disable();
     }
 
     public void EnablePlayerInput()
     {
-        inputActions.Player.Enable();
+        _inputActions.Player.Enable();
     }
 
 
     public Vector2 GetMovementVector() {
-        Vector2 inputVector = inputActions.Player.Move.ReadValue<Vector2>();
+        Vector2 inputVector = _inputActions.Player.Move.ReadValue<Vector2>();
         return inputVector;
     }
 
     public Vector2 GetAttackingVector()
     {
-        Vector2 inputAtkVector = inputActions.Combat.Attack.ReadValue<Vector2>();
+        Vector2 inputAtkVector = _inputActions.Combat.Attack.ReadValue<Vector2>();
 
         return inputAtkVector;
     }

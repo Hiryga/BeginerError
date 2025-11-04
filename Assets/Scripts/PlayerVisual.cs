@@ -6,52 +6,45 @@ public class PlayerVisual : MonoBehaviour
 {
     [SerializeField] private Player _player;
     [SerializeField] private Sword _sword;
-    private Animator animator;
+    private Animator _animator;
     private SpriteRenderer spriteRenderer;
     private const string IS_RUNNING = "IsRunning";
-    private const string IS_DEAD = "IsDead";
+    private const string IS_DEAD = "IsDie";
+    private const string ATTACK = "Attack";
 
     private bool isDead = false;
 
     private void Awake()
     {
-        animator = GetComponent<Animator>();
+        _animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     private void Start()
     {
-        Player.Instance.GetComponent<PlayerHealth>().OnDeath += HandleDeath;
+        Player.Instance.OnPlayerDeath += Player_OnPlayerDeath;
+    }
+
+    private void Player_OnPlayerDeath(object sender, System.EventArgs e)
+    {
+        isDead = true;
+        _animator.SetBool(IS_DEAD, true);
     }
 
     private void Update()
     {
         if (PauseMenu.IsPaused || isDead) return;
 
-        animator.SetBool(IS_RUNNING, Player.Instance.IsRunning());
+        _animator.SetBool(IS_RUNNING, Player.Instance.IsRunning());
         AdjustPlayerFacingDirection();
+
+        if (Player.Instance.IsAlive())
+            AdjustPlayerFacingDirection();
 
         if (Input.GetMouseButtonDown(0))
         {
-            animator.SetTrigger("Attack");
+            _animator.SetTrigger(ATTACK);
         }
-    }
-
-    private void HandleDeath(object sender, System.EventArgs e)
-    {
-        if (isDead) return;
-
-        isDead = true;
-        animator.Play("Death", 0, 0f);
-        enabled = false;
-
-        StartCoroutine(ShowGameOver());
-    }
-
-    private IEnumerator ShowGameOver()
-    {
-        yield return new WaitForSeconds(2f);
-        Debug.Log("GAME OVER");
     }
 
     public void TriggerAttackAnimationTurnOn()

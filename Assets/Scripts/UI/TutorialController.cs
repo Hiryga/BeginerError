@@ -1,30 +1,60 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 using System.Collections;
 
 public class TutorialController : MonoBehaviour
 {
     [SerializeField] private GameObject tutorialPanel;
     [SerializeField] private TMP_Text tutorialText;
+    [SerializeField] private Toggle tutorialToggle;
     [SerializeField] private float displayTime = 3f;
     [SerializeField] private float fadeDuration = 1f;
 
     private CanvasGroup canvasGroup;
+    private Coroutine tutorialCoroutine;
+    private bool _shouldShowTutorial;
 
     private void Awake()
     {
         canvasGroup = tutorialPanel.GetComponent<CanvasGroup>();
         if (canvasGroup == null)
             canvasGroup = tutorialPanel.AddComponent<CanvasGroup>();
+
         tutorialPanel.SetActive(false);
+
+        _shouldShowTutorial = PlayerPrefs.GetInt("ShowTutorial", 1) == 1;
+        if (tutorialToggle != null)
+        {
+            tutorialToggle.isOn = _shouldShowTutorial;
+            tutorialToggle.onValueChanged.AddListener(OnToggleChanged);
+        }
     }
 
-    private void Start()
+    private void OnToggleChanged(bool isOn)
     {
-        TutorialManager.ResetTutorial();
-        if (TutorialManager.IsFirstLaunch())
+        _shouldShowTutorial = isOn;
+        PlayerPrefs.SetInt("ShowTutorial", isOn ? 1 : 0);
+    }
+
+    // Этот метод вызывай после выхода из меню
+    public void ShowTutorialIfEnabled()
+    {
+        if (_shouldShowTutorial)
         {
-            StartCoroutine(ShowTutorialSequence());
+            if (tutorialCoroutine != null)
+                StopCoroutine(tutorialCoroutine);
+
+            tutorialCoroutine = StartCoroutine(ShowTutorialSequence());
+        }
+        else
+        {
+            tutorialPanel.SetActive(false);
+            if (tutorialCoroutine != null)
+            {
+                StopCoroutine(tutorialCoroutine);
+                tutorialCoroutine = null;
+            }
         }
     }
 
@@ -33,8 +63,6 @@ public class TutorialController : MonoBehaviour
         yield return ShowMessage("Используй WASD или стрелки, чтобы двигаться", displayTime);
         yield return ShowMessage("ЛКМ — атака. Целься мышью!", displayTime);
         yield return ShowMessage("Убей 3 монстров, чтобы пройти уровень!", displayTime);
-
-        TutorialManager.CompleteTutorial();
     }
 
     private IEnumerator ShowMessage(string message, float time)
@@ -42,11 +70,9 @@ public class TutorialController : MonoBehaviour
         tutorialText.text = message;
         tutorialPanel.SetActive(true);
         canvasGroup.alpha = 0;
-
         yield return FadeIn();
         yield return new WaitForSeconds(time);
         yield return FadeOut();
-
         tutorialPanel.SetActive(false);
     }
 

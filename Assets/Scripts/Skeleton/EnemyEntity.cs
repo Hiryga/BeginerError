@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class EnemyEntity : MonoBehaviour
 {
-
+    [SerializeField] private EnemySO enemySO;
     public event EventHandler OnTakeHit;
     public event EventHandler OnDeath;
 
@@ -26,9 +26,12 @@ public class EnemyEntity : MonoBehaviour
         _currentHealth = _maxHealth;
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerStay2D(Collider2D collision)
     {
-        Debug.Log("Attack");
+        if (collision.transform.TryGetComponent(out Player player))
+        {
+            player.TakeDamage(transform, enemySO.enemyDamageAmount);
+        }
     }
 
     public void TakeDamage(int damage)

@@ -179,8 +179,8 @@ MonoBehaviour:
   chasingDistance: 15
   chasingSpeedMultiplier: 2
   isAttackingEnemy: 1
-  attackingDistance: 5
-  attackRate: 2
+  attackingDistance: 4
+  attackRate: 1
 --- !u!114 &3188652749088880178
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -193,6 +193,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfeaa4a6e78ae104580f35f3d6ab4ef2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  enemySO: {fileID: 11400000, guid: 59a980a2ab54419419e7cd6441bf78cc, type: 2}
   _maxHealth: 10
 --- !u!60 &520516672878802816
 PolygonCollider2D:
