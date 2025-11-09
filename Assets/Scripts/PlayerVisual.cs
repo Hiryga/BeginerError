@@ -6,6 +6,9 @@ public class PlayerVisual : MonoBehaviour
 {
     [SerializeField] private Player _player;
     [SerializeField] private Sword _sword;
+    [SerializeField] private float attackCooldown = 0.5f;
+
+    private float _nextAttackTime = 0f;
     private Animator animator;
     private SpriteRenderer spriteRenderer;
     private const string IS_RUNNING = "IsRunning";
@@ -31,11 +34,13 @@ public class PlayerVisual : MonoBehaviour
         animator.SetBool(IS_RUNNING, Player.Instance.IsRunning());
         AdjustPlayerFacingDirection();
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && Time.time >= _nextAttackTime)
         {
             animator.SetTrigger("Attack");
+            _nextAttackTime = Time.time + attackCooldown;
         }
     }
+
 
     private void HandleDeath(object sender, System.EventArgs e)
     {
