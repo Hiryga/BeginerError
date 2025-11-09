@@ -227,6 +227,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""BowAttack"",
+                    ""type"": ""Button"",
+                    ""id"": ""bd0575cc-59b8-4156-841a-968201bf0486"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -238,6 +247,17 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Attack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e2c74249-bc41-4524-83ca-7cce445f0af3"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""BowAttack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -270,6 +290,54 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""Weapons"",
+            ""id"": ""5314e5a4-8d3f-468f-b01f-b6099d3d9a00"",
+            ""actions"": [
+                {
+                    ""name"": ""SelectSword"",
+                    ""type"": ""Button"",
+                    ""id"": ""66ec6577-7423-4bcf-b325-70fdccd2ec15"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SelectBow"",
+                    ""type"": ""Button"",
+                    ""id"": ""b05c3491-5e2a-4266-97e1-8dfac7d925b7"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""ce1153c4-14c4-4359-abf2-de88d89cf711"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SelectSword"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""164aa865-4f0e-44b7-b571-7270a2f32bcb"",
+                    ""path"": ""<Keyboard>/2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SelectBow"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -280,9 +348,14 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         // Combat
         m_Combat = asset.FindActionMap("Combat", throwIfNotFound: true);
         m_Combat_Attack = m_Combat.FindAction("Attack", throwIfNotFound: true);
+        m_Combat_BowAttack = m_Combat.FindAction("BowAttack", throwIfNotFound: true);
         // Pause
         m_Pause = asset.FindActionMap("Pause", throwIfNotFound: true);
         m_Pause_Pause = m_Pause.FindAction("Pause", throwIfNotFound: true);
+        // Weapons
+        m_Weapons = asset.FindActionMap("Weapons", throwIfNotFound: true);
+        m_Weapons_SelectSword = m_Weapons.FindAction("SelectSword", throwIfNotFound: true);
+        m_Weapons_SelectBow = m_Weapons.FindAction("SelectBow", throwIfNotFound: true);
     }
 
     ~@PlayerInputActions()
@@ -290,6 +363,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         UnityEngine.Debug.Assert(!m_Player.enabled, "This will cause a leak and performance issues, PlayerInputActions.Player.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_Combat.enabled, "This will cause a leak and performance issues, PlayerInputActions.Combat.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_Pause.enabled, "This will cause a leak and performance issues, PlayerInputActions.Pause.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_Weapons.enabled, "This will cause a leak and performance issues, PlayerInputActions.Weapons.Disable() has not been called.");
     }
 
     /// <summary>
@@ -462,6 +536,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Combat;
     private List<ICombatActions> m_CombatActionsCallbackInterfaces = new List<ICombatActions>();
     private readonly InputAction m_Combat_Attack;
+    private readonly InputAction m_Combat_BowAttack;
     /// <summary>
     /// Provides access to input actions defined in input action map "Combat".
     /// </summary>
@@ -477,6 +552,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Combat/Attack".
         /// </summary>
         public InputAction @Attack => m_Wrapper.m_Combat_Attack;
+        /// <summary>
+        /// Provides access to the underlying input action "Combat/BowAttack".
+        /// </summary>
+        public InputAction @BowAttack => m_Wrapper.m_Combat_BowAttack;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -506,6 +585,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Attack.started += instance.OnAttack;
             @Attack.performed += instance.OnAttack;
             @Attack.canceled += instance.OnAttack;
+            @BowAttack.started += instance.OnBowAttack;
+            @BowAttack.performed += instance.OnBowAttack;
+            @BowAttack.canceled += instance.OnBowAttack;
         }
 
         /// <summary>
@@ -520,6 +602,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @Attack.started -= instance.OnAttack;
             @Attack.performed -= instance.OnAttack;
             @Attack.canceled -= instance.OnAttack;
+            @BowAttack.started -= instance.OnBowAttack;
+            @BowAttack.performed -= instance.OnBowAttack;
+            @BowAttack.canceled -= instance.OnBowAttack;
         }
 
         /// <summary>
@@ -649,6 +734,113 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="PauseActions" /> instance referencing this action map.
     /// </summary>
     public PauseActions @Pause => new PauseActions(this);
+
+    // Weapons
+    private readonly InputActionMap m_Weapons;
+    private List<IWeaponsActions> m_WeaponsActionsCallbackInterfaces = new List<IWeaponsActions>();
+    private readonly InputAction m_Weapons_SelectSword;
+    private readonly InputAction m_Weapons_SelectBow;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "Weapons".
+    /// </summary>
+    public struct WeaponsActions
+    {
+        private @PlayerInputActions m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public WeaponsActions(@PlayerInputActions wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "Weapons/SelectSword".
+        /// </summary>
+        public InputAction @SelectSword => m_Wrapper.m_Weapons_SelectSword;
+        /// <summary>
+        /// Provides access to the underlying input action "Weapons/SelectBow".
+        /// </summary>
+        public InputAction @SelectBow => m_Wrapper.m_Weapons_SelectBow;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_Weapons; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="WeaponsActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(WeaponsActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="WeaponsActions" />
+        public void AddCallbacks(IWeaponsActions instance)
+        {
+            if (instance == null || m_Wrapper.m_WeaponsActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_WeaponsActionsCallbackInterfaces.Add(instance);
+            @SelectSword.started += instance.OnSelectSword;
+            @SelectSword.performed += instance.OnSelectSword;
+            @SelectSword.canceled += instance.OnSelectSword;
+            @SelectBow.started += instance.OnSelectBow;
+            @SelectBow.performed += instance.OnSelectBow;
+            @SelectBow.canceled += instance.OnSelectBow;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="WeaponsActions" />
+        private void UnregisterCallbacks(IWeaponsActions instance)
+        {
+            @SelectSword.started -= instance.OnSelectSword;
+            @SelectSword.performed -= instance.OnSelectSword;
+            @SelectSword.canceled -= instance.OnSelectSword;
+            @SelectBow.started -= instance.OnSelectBow;
+            @SelectBow.performed -= instance.OnSelectBow;
+            @SelectBow.canceled -= instance.OnSelectBow;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="WeaponsActions.UnregisterCallbacks(IWeaponsActions)" />.
+        /// </summary>
+        /// <seealso cref="WeaponsActions.UnregisterCallbacks(IWeaponsActions)" />
+        public void RemoveCallbacks(IWeaponsActions instance)
+        {
+            if (m_Wrapper.m_WeaponsActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="WeaponsActions.AddCallbacks(IWeaponsActions)" />
+        /// <seealso cref="WeaponsActions.RemoveCallbacks(IWeaponsActions)" />
+        /// <seealso cref="WeaponsActions.UnregisterCallbacks(IWeaponsActions)" />
+        public void SetCallbacks(IWeaponsActions instance)
+        {
+            foreach (var item in m_Wrapper.m_WeaponsActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_WeaponsActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="WeaponsActions" /> instance referencing this action map.
+    /// </summary>
+    public WeaponsActions @Weapons => new WeaponsActions(this);
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Player" which allows adding and removing callbacks.
     /// </summary>
@@ -678,6 +870,13 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnAttack(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "BowAttack" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnBowAttack(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Pause" which allows adding and removing callbacks.
@@ -693,5 +892,27 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnPause(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Weapons" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="WeaponsActions.AddCallbacks(IWeaponsActions)" />
+    /// <seealso cref="WeaponsActions.RemoveCallbacks(IWeaponsActions)" />
+    public interface IWeaponsActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "SelectSword" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSelectSword(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SelectBow" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSelectBow(InputAction.CallbackContext context);
     }
 }

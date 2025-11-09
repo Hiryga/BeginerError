@@ -141,6 +141,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "BowAttack",
+                    "type": "Button",
+                    "id": "bd0575cc-59b8-4156-841a-968201bf0486",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -152,6 +161,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Attack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e2c74249-bc41-4524-83ca-7cce445f0af3",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "BowAttack",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -180,6 +200,54 @@
                     "processors": "",
                     "groups": "",
                     "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Weapons",
+            "id": "5314e5a4-8d3f-468f-b01f-b6099d3d9a00",
+            "actions": [
+                {
+                    "name": "SelectSword",
+                    "type": "Button",
+                    "id": "66ec6577-7423-4bcf-b325-70fdccd2ec15",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SelectBow",
+                    "type": "Button",
+                    "id": "b05c3491-5e2a-4266-97e1-8dfac7d925b7",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "ce1153c4-14c4-4359-abf2-de88d89cf711",
+                    "path": "<Keyboard>/1",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SelectSword",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "164aa865-4f0e-44b7-b571-7270a2f32bcb",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SelectBow",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

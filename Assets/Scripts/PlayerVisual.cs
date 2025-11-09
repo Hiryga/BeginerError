@@ -1,46 +1,130 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections;
 
 public class PlayerVisual : MonoBehaviour
 {
-    [SerializeField] private Player _player;
-    [SerializeField] private Sword _sword;
+    [SerializeField] private Player _player;                         // Ссылка на Player
+    [SerializeField] private WeaponSwitcher weaponSwitcher;          // Активное оружие
+    [SerializeField] private Sword _sword;                           // Меч
     [SerializeField] private float attackCooldown = 0.5f;
 
-    private float _nextAttackTime = 0f;
+    private Bow activeBow;
+    private GameObject _activeWeaponGO; // Сохраняем текущее оружие
+
     private Animator animator;
     private SpriteRenderer spriteRenderer;
+    private float _nextAttackTime = 0f;
+    private bool isAttacking = false;
+    private bool isDead = false;
     private const string IS_RUNNING = "IsRunning";
     private const string IS_DEAD = "IsDead";
-
-    private bool isDead = false;
 
     private void Awake()
     {
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        if (weaponSwitcher == null)
+        {
+            weaponSwitcher = GetComponentInChildren<WeaponSwitcher>();
+        }
     }
 
     private void Start()
     {
         Player.Instance.GetComponent<PlayerHealth>().OnDeath += HandleDeath;
+
+        // Подписка на события GameInput
+        GameInput.Instance.OnAttack += OnAttackInput;      // атака мечом
+        GameInput.Instance.OnBowAttack += OnBowAttackInput; // атака из лука
     }
 
-    private void Update()
+    // МЕЧ
+    private void OnAttackInput()
     {
-        if (PauseMenu.IsPaused || isDead) return;
+        if (isDead || isAttacking || Time.time < _nextAttackTime) return;
 
-        animator.SetBool(IS_RUNNING, Player.Instance.IsRunning());
-        AdjustPlayerFacingDirection();
+        UpdateActiveWeapon();
 
-        if (Input.GetMouseButtonDown(0) && Time.time >= _nextAttackTime)
+        if (_sword != null && _activeWeaponGO == _sword.gameObject)
         {
             animator.SetTrigger("Attack");
+            isAttacking = true;
             _nextAttackTime = Time.time + attackCooldown;
         }
     }
 
+    // ЛУК
+    private void OnBowAttackInput()
+    {
+        if (isDead || isAttacking || Time.time < _nextAttackTime) return;
+
+        UpdateActiveWeapon();
+
+        if (activeBow != null)
+        {
+            animator.SetTrigger("BowAttack");
+            isAttacking = true;
+            _nextAttackTime = Time.time + attackCooldown;
+        }
+    }
+
+    private void Update()
+    {
+        if (isDead) return;
+
+        // Останавливаем движение когда идёт анимация атаки
+        if (isAttacking)
+        {
+            animator.SetBool(IS_RUNNING, false);
+            _player.SetCanMove(false); // в Player.cs нужен canMove для блокировки движения
+            return;
+        }
+        else
+        {
+            _player.SetCanMove(true); // разрешаем движение обратно
+        }
+
+        animator.SetBool(IS_RUNNING, Player.Instance.IsRunning());
+        AdjustPlayerFacingDirection();
+    }
+
+    // Вызови этот метод через Animation Event на последнем кадре BowShot и Attack!
+    public void EndAttackAnimation()
+    {
+        isAttacking = false;
+    }
+
+    // BowShot: вызывается через Animation Event (выпуск стрелы)
+    public void TriggerBowShootEvent()
+    {
+        UpdateActiveWeapon();
+        if (activeBow != null)
+        {
+            activeBow.ShootArrowEvent();
+        }
+    }
+
+    // Меч: Animation Event на включение/выключение коллайдера
+    public void TriggerAttackAnimationTurnOn()
+    {
+        UpdateActiveWeapon();
+        if (isDead || _activeWeaponGO != _sword.gameObject) return;
+        _sword.AttackColliderTurnOn();
+    }
+
+    public void TriggerAttackAnimationTurnOff()
+    {
+        UpdateActiveWeapon();
+        if (isDead || _activeWeaponGO != _sword.gameObject) return;
+        _sword.AttackColliderTurnOff();
+    }
+
+    private void UpdateActiveWeapon()
+    {
+        _activeWeaponGO = weaponSwitcher != null ? weaponSwitcher.GetActiveWeapon() : null;
+        activeBow = null;
+        if (_activeWeaponGO != null) activeBow = _activeWeaponGO.GetComponent<Bow>();
+    }
 
     private void HandleDeath(object sender, System.EventArgs e)
     {
@@ -57,18 +141,6 @@ public class PlayerVisual : MonoBehaviour
     {
         yield return new WaitForSeconds(2f);
         Debug.Log("GAME OVER");
-    }
-
-    public void TriggerAttackAnimationTurnOn()
-    {
-        if (isDead) return;
-        _sword.AttackColliderTurnOn();
-    }
-
-    public void TriggerAttackAnimationTurnOff()
-    {
-        if (isDead) return;
-        _sword.AttackColliderTurnOff();
     }
 
     private void AdjustPlayerFacingDirection()

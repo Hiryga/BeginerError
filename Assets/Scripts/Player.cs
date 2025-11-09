@@ -42,10 +42,11 @@ public class Player : MonoBehaviour {
         inputVector = GameInput.Instance.GetMovementVector();
     }
 
-    private void FixedUpdate() {
-        HandleMovement();
+    private void FixedUpdate()
+    {
+        if (canMove) HandleMovement();
     }
-    
+
 
 
     public bool IsAlive() => _isAlive;
@@ -59,6 +60,9 @@ public class Player : MonoBehaviour {
         }
     }
 
+    private bool canMove = true;
+    public void SetCanMove(bool moveState) { canMove = moveState; }
+  
 
     public bool IsRunning() {
         return isRunning;
