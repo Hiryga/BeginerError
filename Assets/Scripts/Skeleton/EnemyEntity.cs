@@ -9,6 +9,8 @@ public class EnemyEntity : MonoBehaviour
     public event EventHandler OnTakeHit;
     public event EventHandler OnDeath;
 
+    private bool _playerHitThisAttack = false;
+
     public int GetCurrentHealth() => _currentHealth;
     public int GetMaxHealth() => _maxHealth;
 
@@ -48,7 +50,17 @@ public class EnemyEntity : MonoBehaviour
     public void PolygonColliderTurnOn()
     {
         _polygonCollider2D.enabled = true;
+        _playerHitThisAttack = false;
     }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (_polygonCollider2D.enabled && !_playerHitThisAttack && collision.TryGetComponent(out PlayerHealth playerHealth))
+        {
+            playerHealth.TakeDamage(1); // или свой параметр урона
+            _playerHitThisAttack = true; // игрок НЕ получит урон до следующей атаки
+        }
+    }
+
 
     private void DetectDeath()
     {

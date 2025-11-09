@@ -179,7 +179,7 @@ MonoBehaviour:
   chasingDistance: 10
   chasingSpeedMultiplier: 2
   isAttackingEnemy: 1
-  attackingDistance: 4
+  attackingDistance: 4.3
   attackRate: 1
 --- !u!114 &3188652749088880178
 MonoBehaviour:
@@ -238,13 +238,14 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 3.4216318, y: 4.6819735}
-      - {x: 3.214408, y: 4.4000983}
-      - {x: 2.7820024, y: 3.4729655}
-      - {x: 2.68508, y: 2.3150816}
+    - - {x: 3.0560513, y: 5.2669015}
+      - {x: 2.6660385, y: 4.6560044}
+      - {x: 2.1605167, y: 3.6923132}
+      - {x: 1.9285841, y: 2.9115543}
+      - {x: 2.1367097, y: 2.0957336}
       - {x: 2.7634377, y: 1.524729}
       - {x: 2.796352, y: 1.4710467}
-      - {x: 3.1013556, y: 1.6349862}
+      - {x: 3.1013556, y: 1.5253122}
       - {x: 3.9914436, y: 2.8101618}
       - {x: 4.072563, y: 4.169337}
       - {x: 3.7404304, y: 5.069549}
@@ -330,7 +331,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.7637942, y: 1.9581114}
+  m_Offset: {x: 0.3250985, y: 1.9581114}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -341,5 +342,5 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.6558824, y: 3.916323}
+  m_Size: {x: 1.8021135, y: 3.916323}
   m_EdgeRadius: 0
