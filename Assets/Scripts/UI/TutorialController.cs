@@ -61,8 +61,8 @@ public class TutorialController : MonoBehaviour
     private IEnumerator ShowTutorialSequence()
     {
         yield return ShowMessage("Используй WASD или стрелки, чтобы двигаться", displayTime);
-        yield return ShowMessage("ЛКМ — атака. Целься мышью!", displayTime);
-        yield return ShowMessage("Убей 3 монстров, чтобы пройти уровень!", displayTime);
+        yield return ShowMessage("ЛКМ — атака. Целься мышью! Используй '1' и '2' для переключения режима атаки", displayTime);
+        yield return ShowMessage("Убей всех монстров, чтобы пройти уровень!", displayTime);
     }
 
     private IEnumerator ShowMessage(string message, float time)
