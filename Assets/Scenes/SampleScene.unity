@@ -112319,7 +112319,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   level: Level2
-  levelCompletePanel: {fileID: 0}
+  levelCompletePanel: {fileID: 1394043495}
 --- !u!1 &1760874479
 GameObject:
   m_ObjectHideFlags: 0
