@@ -196,12 +196,13 @@ public class BossAI : MonoBehaviour
     public void SetDeathState()
     {
         isDead = true;
-        if (navMeshAgent != null)
+
+        if (navMeshAgent != null && navMeshAgent.enabled)
         {
-            navMeshAgent.ResetPath();
-            navMeshAgent.enabled = false;
+            navMeshAgent.enabled = false; // ОТКЛЮЧАЕМ СНАЧАЛА
         }
     }
+
 
     private void BossEntity_OnDeath(object sender, EventArgs e)
     {

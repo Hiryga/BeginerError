@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,7 +6,9 @@ using UnityEngine;
 public class Sword : MonoBehaviour
 {
     [SerializeField] private int damageAmount = 2;
+    [SerializeField] private float attackCooldown = 0.5f;
     private PolygonCollider2D _polygonCollider2D;
+    private float lastAttackTime = 0f;
 
     private void Awake()
     {
@@ -25,10 +27,25 @@ public class Sword : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!_polygonCollider2D.enabled) return; // ���� �� ������ ���������� ������
-        if (collision.transform.TryGetComponent(out EnemyEntity enemyEntity))
+        if (!_polygonCollider2D) return;
+        if (Time.time < lastAttackTime + attackCooldown) return;
+
+        // ПРОВЕРКА 1: Обычный враг
+        if (collision.TryGetComponent(out EnemyEntity enemyEntity))
         {
             enemyEntity.TakeDamage(damageAmount);
+            Debug.Log($"[Sword] ⚔️ Удар по врагу! Урон: {damageAmount}");
+            lastAttackTime = Time.time;
+            return;
+        }
+
+        // ПРОВЕРКА 2: БОСС
+        if (collision.TryGetComponent(out BossEntity bossEntity))
+        {
+            bossEntity.TakeDamage(damageAmount);
+            Debug.Log($"[Sword] 💢 УДАР ПО БОССУ! Урон: {damageAmount}");
+            lastAttackTime = Time.time;
+            return;
         }
     }
 
