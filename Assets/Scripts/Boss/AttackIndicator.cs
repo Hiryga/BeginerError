@@ -1,10 +1,10 @@
-using UnityEngine;
+п»їusing UnityEngine;
 
 public class AttackIndicator : MonoBehaviour
 {
     [SerializeField] private SpriteRenderer spriteRenderer;
-    [SerializeField] private Color startColor = new Color(1f, 0f, 0f, 0.2f);
-    [SerializeField] private Color endColor = new Color(1f, 0f, 0f, 0.9f);
+    [SerializeField] private Color startColor = new Color(1f, 0f, 0f, 0.05f); // РћС‡РµРЅСЊ Р±Р»РµРєР»С‹Р№ (5%)
+    [SerializeField] private Color endColor = new Color(1f, 0f, 0f, 0.7f);    // Р”Рѕ 70%
 
     private float fillTime = 1f;
     private float currentTime = 0f;
@@ -25,15 +25,13 @@ public class AttackIndicator : MonoBehaviour
         if (spriteRenderer != null)
         {
             spriteRenderer.color = startColor;
-            Debug.Log("[AttackIndicator] Инициализирован. Radius: " + radius + ", Duration: " + duration);
+            transform.localScale = targetScale;
+            Debug.Log("[AttackIndicator] вњ“ РРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅ. Radius: " + radius + ", Duration: " + duration);
         }
         else
         {
-            Debug.LogError("[AttackIndicator] SpriteRenderer не найден!");
+            Debug.LogError("[AttackIndicator] вњ— SpriteRenderer РЅРµ РЅР°Р№РґРµРЅ!");
         }
-
-        // Начнём с нулевого масштаба
-        transform.localScale = Vector3.zero;
     }
 
     private void Update()
@@ -45,10 +43,7 @@ public class AttackIndicator : MonoBehaviour
             currentTime += Time.deltaTime;
             float progress = Mathf.Clamp01(currentTime / fillTime);
 
-            // Плавное увеличение размера от центра
-            transform.localScale = Vector3.Lerp(Vector3.zero, targetScale, progress);
-
-            // Плавное изменение цвета и прозрачности
+            // РўРѕР»СЊРєРѕ РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚СЊ РјРµРЅСЏРµС‚СЃСЏ РѕС‚ 5% РґРѕ 70%
             if (spriteRenderer != null)
             {
                 spriteRenderer.color = Color.Lerp(startColor, endColor, progress);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -11,11 +12,11 @@ public class BossAI : MonoBehaviour
     [SerializeField] private float moveSpeed = 1.5f;
 
     [Header("Attack Settings")]
-    [SerializeField] private float attackRange = 3f; // Радиус когда босс начинает атаку
-    [SerializeField] private float attackCooldown = 5f; // Кулдаун между атаками
-    [SerializeField] private float attackChargeTime = 2f; // Время каста (заполнение круга)
+    [SerializeField] private float attackRange = 3f;
+    [SerializeField] private float attackCooldown = 5f;
+    [SerializeField] private float attackChargeTime = 2f;
     [SerializeField] private int attackDamage = 5;
-    [SerializeField] private float attackRadius = 2f; // Радиус урона
+    [SerializeField] private float attackRadius = 2f;
 
     [Header("References")]
     [SerializeField] private GameObject attackIndicatorPrefab;
@@ -27,6 +28,8 @@ public class BossAI : MonoBehaviour
     private bool isDead = false;
     private bool isAttacking = false;
     private float nextAttackTime = 0f;
+    private Coroutine currentAttackCoroutine;
+    private List<GameObject> activeIndicators = new List<GameObject>(); // Список активных индикаторов
 
     private void Awake()
     {
@@ -76,6 +79,9 @@ public class BossAI : MonoBehaviour
         {
             bossEntity.OnDeath -= BossEntity_OnDeath;
         }
+
+        // Уничтожаем оставшиеся индикаторы
+        DestroyAllIndicators();
     }
 
     private void Update()
@@ -91,14 +97,13 @@ public class BossAI : MonoBehaviour
 
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
-        // Если в радиусе атаки, готов атаковать и не атакует сейчас
         if (distanceToPlayer <= attackRange &&
             Time.time >= nextAttackTime &&
             !isAttacking)
         {
-            StartCoroutine(PerformAttack());
+            Debug.Log("[BossAI] Начало атаки!");
+            currentAttackCoroutine = StartCoroutine(PerformAttack());
         }
-        // Иначе двигаемся к игроку
         else if (!isAttacking && navMeshAgent != null && navMeshAgent.enabled)
         {
             navMeshAgent.SetDestination(player.position);
@@ -112,55 +117,62 @@ public class BossAI : MonoBehaviour
 
         Debug.Log("[BossAI] ===== НАЧАЛО АТАКИ =====");
 
-        // Остановить движение
         if (navMeshAgent != null && navMeshAgent.enabled)
         {
             navMeshAgent.ResetPath();
         }
 
-        // ВАЖНО: Запоминаем позицию игрока В МОМЕНТ НАЧАЛА КАСТА
         Vector3 targetAttackPosition = player.position;
-
         Debug.Log($"[BossAI] Цель атаки: {targetAttackPosition}");
 
-        // Создать индикатор атаки НА ПОЗИЦИИ ИГРОКА
         GameObject indicator = null;
         if (attackIndicatorPrefab != null)
         {
             indicator = Instantiate(attackIndicatorPrefab, targetAttackPosition, Quaternion.identity);
+            activeIndicators.Add(indicator); // Добавляем в список
+
             AttackIndicator indicatorScript = indicator.GetComponent<AttackIndicator>();
             if (indicatorScript != null)
             {
                 indicatorScript.Initialize(attackChargeTime, attackRadius);
                 Debug.Log("[BossAI] Индикатор создан на позиции игрока");
             }
-            else
-            {
-                Debug.LogError("[BossAI] AttackIndicator скрипт не найден!");
-            }
-        }
-        else
-        {
-            Debug.LogError("[BossAI] Attack Indicator Prefab не назначен!");
         }
 
-        // Событие для анимации
         OnBossAttack?.Invoke(this, EventArgs.Empty);
 
-        // Ждем пока круг заполняется
-        Debug.Log($"[BossAI] Каст атаки... ({attackChargeTime} сек)");
-        yield return new WaitForSeconds(attackChargeTime);
+        float timeElapsed = 0f;
+        while (timeElapsed < attackChargeTime && !isDead)
+        {
+            timeElapsed += Time.deltaTime;
+            yield return null;
+        }
 
-        // Уничтожить индикатор
+        // ВАЖНО: Если босс умер - отменяем атаку и уничтожаем индикатор
+        if (isDead)
+        {
+            Debug.Log("[BossAI] ☠️ Босс умер! Атака отменена.");
+            if (indicator != null)
+            {
+                Destroy(indicator);
+                activeIndicators.Remove(indicator); // Удаляем из списка
+            }
+            isAttacking = false;
+            yield break;
+        }
+
         if (indicator != null)
         {
             Destroy(indicator);
+            activeIndicators.Remove(indicator); // Удаляем из списка
         }
 
-        // Наносим урон по сохраненной позиции (где был игрок в начале каста)
-        DamagePlayersInRadius(targetAttackPosition, attackRadius, attackDamage);
-
-        Debug.Log($"[BossAI] ===== АТАКА ЗАВЕРШЕНА ===== (следующая через {attackCooldown} сек)");
+        // Наносим урон только если босс живой
+        if (!isDead)
+        {
+            DamagePlayersInRadius(targetAttackPosition, attackRadius, attackDamage);
+            Debug.Log($"[BossAI] ===== АТАКА ЗАВЕРШЕНА =====");
+        }
 
         isAttacking = false;
     }
@@ -168,8 +180,6 @@ public class BossAI : MonoBehaviour
     private void DamagePlayersInRadius(Vector3 position, float radius, int damage)
     {
         Collider2D[] hits = Physics2D.OverlapCircleAll(position, radius);
-
-        // Используем HashSet чтобы не дамажить одного игрока несколько раз
         System.Collections.Generic.HashSet<PlayerHealth> damagedPlayers =
             new System.Collections.Generic.HashSet<PlayerHealth>();
 
@@ -193,16 +203,41 @@ public class BossAI : MonoBehaviour
         }
     }
 
+    // Уничтожаем ВСЕ активные индикаторы
+    private void DestroyAllIndicators()
+    {
+        foreach (GameObject indicator in activeIndicators)
+        {
+            if (indicator != null)
+            {
+                Destroy(indicator);
+                Debug.Log("[BossAI] ⛔ Индикатор уничтожен при смерти босса");
+            }
+        }
+        activeIndicators.Clear();
+    }
+
     public void SetDeathState()
     {
         isDead = true;
 
+        // Останавливаем текущую атаку
+        if (currentAttackCoroutine != null)
+        {
+            StopCoroutine(currentAttackCoroutine);
+            Debug.Log("[BossAI] ⛔ Текущая атака прервана");
+        }
+
+        // Уничтожаем ВСЕ индикаторы
+        DestroyAllIndicators();
+
+        isAttacking = false;
+
         if (navMeshAgent != null && navMeshAgent.enabled)
         {
-            navMeshAgent.enabled = false; // ОТКЛЮЧАЕМ СНАЧАЛА
+            navMeshAgent.enabled = false;
         }
     }
-
 
     private void BossEntity_OnDeath(object sender, EventArgs e)
     {
@@ -211,11 +246,9 @@ public class BossAI : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        // Красный круг - радиус начала атаки
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
 
-        // Желтый круг - радиус урона
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, attackRadius);
     }
