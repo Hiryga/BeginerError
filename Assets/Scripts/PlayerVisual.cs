@@ -66,13 +66,16 @@ public class PlayerVisual : MonoBehaviour
 
         UpdateActiveWeapon();
 
-        if (activeBow != null)
+        // ѕровер€ем наличие стрел перед анимацией
+        if (activeBow != null && activeBow.GetArrowCount() > 0)
         {
             animator.SetTrigger("BowAttack");
             isAttacking = true;
             _nextAttackTime = Time.time + attackCooldown;
         }
+        // ≈сли стрел нет Ч ничего не проигрываем!
     }
+
 
     private void Update()
     {

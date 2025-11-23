@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Sword : MonoBehaviour
 {
     [SerializeField] private int damageAmount = 2;
     [SerializeField] private float attackCooldown = 0.5f;
+    [SerializeField] private Bow playerBow; // Ссылка на компонент Bow игрока (добавить в инспекторе)
     private PolygonCollider2D _polygonCollider2D;
     private float lastAttackTime = 0f;
 
@@ -30,23 +28,30 @@ public class Sword : MonoBehaviour
         if (!_polygonCollider2D) return;
         if (Time.time < lastAttackTime + attackCooldown) return;
 
-        // ПРОВЕРКА 1: Обычный враг
+        bool hit = false;
+
+        // Обычный враг
         if (collision.TryGetComponent(out EnemyEntity enemyEntity))
         {
             enemyEntity.TakeDamage(damageAmount);
             Debug.Log($"[Sword] ⚔️ Удар по врагу! Урон: {damageAmount}");
-            lastAttackTime = Time.time;
-            return;
+            hit = true;
         }
 
-        // ПРОВЕРКА 2: БОСС
+        // БОСС
         if (collision.TryGetComponent(out BossEntity bossEntity))
         {
             bossEntity.TakeDamage(damageAmount);
             Debug.Log($"[Sword] 💢 УДАР ПО БОССУ! Урон: {damageAmount}");
+            hit = true;
+        }
+
+        if (hit)
+        {
             lastAttackTime = Time.time;
-            return;
+            // Даем 1 стрелу за удар
+            if (playerBow != null)
+                playerBow.AddArrows(1);
         }
     }
-
 }
