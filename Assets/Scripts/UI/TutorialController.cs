@@ -7,7 +7,7 @@ public class TutorialController : MonoBehaviour
 {
     [SerializeField] private GameObject tutorialPanel;
     [SerializeField] private TMP_Text tutorialText;
-    [SerializeField] private Toggle tutorialToggle;
+    [SerializeField] private Toggle tutorialToggle;  // ћожно оставить или убрать, здесь не об€зательно
     [SerializeField] private float displayTime = 3f;
     [SerializeField] private float fadeDuration = 1f;
 
@@ -24,11 +24,17 @@ public class TutorialController : MonoBehaviour
         tutorialPanel.SetActive(false);
 
         _shouldShowTutorial = PlayerPrefs.GetInt("ShowTutorial", 1) == 1;
+
         if (tutorialToggle != null)
         {
             tutorialToggle.isOn = _shouldShowTutorial;
             tutorialToggle.onValueChanged.AddListener(OnToggleChanged);
         }
+    }
+
+    private void Start()
+    {
+        ShowTutorialIfEnabled();
     }
 
     private void OnToggleChanged(bool isOn)
@@ -37,7 +43,6 @@ public class TutorialController : MonoBehaviour
         PlayerPrefs.SetInt("ShowTutorial", isOn ? 1 : 0);
     }
 
-    // Ётот метод вызывай после выхода из меню
     public void ShowTutorialIfEnabled()
     {
         if (_shouldShowTutorial)
