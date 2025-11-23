@@ -33,8 +33,10 @@ public class MainMenuController : MonoBehaviour
 
     private void OnStartGameClicked()
     {
+        PauseMenu.SetPlayerDead(false); // ׁבנמס פכאדא סלונעט
         SceneManager.LoadScene("SampleScene");
     }
+
 
     private void QuitGame()
     {

@@ -6,6 +6,7 @@ public class RestartPanelController : MonoBehaviour
 {
     [SerializeField] private GameObject restartPanel;
     [SerializeField] private Button restartButton;
+    [SerializeField] private Button mainMenuButton;
     [SerializeField] private Button quitButton;
 
     private void Awake()
@@ -18,6 +19,9 @@ public class RestartPanelController : MonoBehaviour
 
         if (quitButton != null)
             quitButton.onClick.AddListener(QuitGame);
+
+        if (mainMenuButton != null)
+            mainMenuButton.onClick.AddListener(BackToMainMenu);
     }
 
     public void ShowDeathPanel()
@@ -35,6 +39,12 @@ public class RestartPanelController : MonoBehaviour
         PauseMenu.SetPlayerDead(false); 
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         Time.timeScale = 1f;
+    }
+
+    private void BackToMainMenu()
+    {
+        Time.timeScale = 1f; // —брос времени, если был поставлен на паузу
+        UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
     }
 
     private void QuitGame()

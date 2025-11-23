@@ -1,13 +1,14 @@
-using UnityEngine;
-using TMPro;
-using UnityEngine.UI;
 using System.Collections;
+using TMPro;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class TutorialController : MonoBehaviour
 {
     [SerializeField] private GameObject tutorialPanel;
     [SerializeField] private TMP_Text tutorialText;
-    [SerializeField] private Toggle tutorialToggle;  // ћожно оставить или убрать, здесь не об€зательно
+    [SerializeField] private Toggle tutorialToggle;
     [SerializeField] private float displayTime = 3f;
     [SerializeField] private float fadeDuration = 1f;
 

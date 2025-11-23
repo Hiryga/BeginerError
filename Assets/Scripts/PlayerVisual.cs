@@ -41,7 +41,7 @@ public class PlayerVisual : MonoBehaviour
     // МЕЧ
     private void OnAttackInput()
     {
-        if (isDead || isAttacking || Time.time < _nextAttackTime) return;
+        if (isDead || isAttacking || Time.time < _nextAttackTime || PauseMenu.IsPaused) return;
 
         UpdateActiveWeapon();
 
@@ -56,7 +56,7 @@ public class PlayerVisual : MonoBehaviour
     // ЛУК
     private void OnBowAttackInput()
     {
-        if (isDead || isAttacking || Time.time < _nextAttackTime) return;
+        if (isDead || isAttacking || Time.time < _nextAttackTime || PauseMenu.IsPaused) return;
 
         UpdateActiveWeapon();
 
@@ -147,6 +147,9 @@ public class PlayerVisual : MonoBehaviour
     {
         if (isDead) return;
 
+        // Блокируем поворот, если игра на паузе (меню открыто)
+        if (PauseMenu.IsPaused) return;
+
         Vector3 mousePos = GameInput.Instance.GetMousePosition();
         Vector3 playerPosition = Player.Instance.GetPlayerScreenPosition();
         bool shouldFlip = mousePos.x < playerPosition.x;
@@ -159,4 +162,5 @@ public class PlayerVisual : MonoBehaviour
             _sword.transform.localScale = localScale;
         }
     }
+
 }

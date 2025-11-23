@@ -10,7 +10,9 @@ public class PauseMenu : MonoBehaviour
     [SerializeField] private GameObject pauseMenuUI;
     [SerializeField] private Button resumeButton;
     [SerializeField] private Button quitButton;
+    [SerializeField] private Button mainMenuButton;
     [SerializeField] private TutorialController tutorialController;
+
 
     private bool isPaused = false;
 
@@ -19,7 +21,10 @@ public class PauseMenu : MonoBehaviour
         pauseMenuUI.SetActive(false);
         resumeButton.onClick.AddListener(Resume);
         quitButton.onClick.AddListener(QuitGame);
+        if (mainMenuButton != null)
+            mainMenuButton.onClick.AddListener(BackToMainMenu);
     }
+
 
     private void Update()
     {
@@ -63,6 +68,13 @@ public class PauseMenu : MonoBehaviour
         Application.Quit();
 #endif
     }
+
+    private void BackToMainMenu()
+    {
+        Time.timeScale = 1f; // —брос времени, если был поставлен на паузу
+        UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu");
+    }
+
 
     public static void SetPlayerDead(bool dead)
     {
