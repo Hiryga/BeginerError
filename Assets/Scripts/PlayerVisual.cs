@@ -124,6 +124,9 @@ public class PlayerVisual : MonoBehaviour
         _activeWeaponGO = weaponSwitcher != null ? weaponSwitcher.GetActiveWeapon() : null;
         activeBow = null;
         if (_activeWeaponGO != null) activeBow = _activeWeaponGO.GetComponent<Bow>();
+
+        if (activeBow != null)
+            activeBow.IsLookingLeft = spriteRenderer.flipX;
     }
 
     private void HandleDeath(object sender, System.EventArgs e)

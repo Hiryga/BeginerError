@@ -48,7 +48,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damageAmount: 2
-  maxDistance: 25
+  maxDistance: 15
 --- !u!50 &122677493292523765
 Rigidbody2D:
   serializedVersion: 4
