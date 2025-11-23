@@ -35,11 +35,12 @@ public class RestartPanelController : MonoBehaviour
 
     private void RestartGame()
     {
-        // Разблокируем паузу при рестарте
-        PauseMenu.SetPlayerDead(false); 
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        PauseMenu.SetPlayerDead(false); // Сброс флага смерти
         Time.timeScale = 1f;
+
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
+
 
     private void BackToMainMenu()
     {

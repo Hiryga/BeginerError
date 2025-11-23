@@ -79,5 +79,7 @@ public class PauseMenu : MonoBehaviour
     public static void SetPlayerDead(bool dead)
     {
         IsPlayerDead = dead;
+        IsPaused = false;    // Снимаем любую паузу при сбросе
     }
+
 }

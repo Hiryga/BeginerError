@@ -34,8 +34,12 @@ public class MainMenuController : MonoBehaviour
     private void OnStartGameClicked()
     {
         PauseMenu.SetPlayerDead(false); // —брос флага смерти
-        SceneManager.LoadScene("SampleScene");
+        Time.timeScale = 1f; // —брос времени, чтобы все работало корректно
+
+        // (»наче атака может заблокироватьс€!)
+        UnityEngine.SceneManagement.SceneManager.LoadScene("SampleScene");
     }
+
 
 
     private void QuitGame()

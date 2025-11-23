@@ -31,12 +31,18 @@ public class PlayerVisual : MonoBehaviour
 
     private void Start()
     {
+        // Сброс состояния игрока при старте сцены
+        isDead = false;
+        isAttacking = false;
+        _nextAttackTime = 0f;
+
         Player.Instance.GetComponent<PlayerHealth>().OnDeath += HandleDeath;
 
         // Подписка на события GameInput
         GameInput.Instance.OnAttack += OnAttackInput;      // атака мечом
         GameInput.Instance.OnBowAttack += OnBowAttackInput; // атака из лука
     }
+
 
     // МЕЧ
     private void OnAttackInput()
@@ -128,6 +134,7 @@ public class PlayerVisual : MonoBehaviour
         if (activeBow != null)
             activeBow.IsLookingLeft = spriteRenderer.flipX;
     }
+
 
     private void HandleDeath(object sender, System.EventArgs e)
     {
