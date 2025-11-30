@@ -1,72 +1,140 @@
-using UnityEngine;
+п»їusing UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System;
-using System.Collections;
+using System.Collections.Generic;
 
 public class ArrowBarUI : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private Image fillImage;           // Картинка внутреннего заполнения (Image fill, например, тип Filled)
-    [SerializeField] private TMP_Text arrowText;        // Отображение числа стрел (TextMeshPro)
-    [SerializeField] private Bow bow;                   // Bow-компонент игрока
+    [SerializeField] private Transform arrowContainer;
+    [SerializeField] private Image arrowIconPrefab;
+    [SerializeField] private TMP_Text arrowCountText;
+    [SerializeField] private Bow bow;
 
     [Header("Settings")]
-    [SerializeField] private float smoothTime = 0.15f;
-    [SerializeField] private Color fullColor = Color.green;
-    [SerializeField] private Color halfColor = new Color(1f, 0.8f, 0f);
-    [SerializeField] private Color lowColor = Color.red;
+    [SerializeField] private float cellSize = 50f;       // Р Р°Р·РјРµСЂ РєР°Р¶РґРѕР№ СЃС‚СЂРµР»С‹
+    [SerializeField] private float spaceBetween = 0f;    // Р Р°СЃСЃС‚РѕСЏРЅРёРµ РјРµР¶РґСѓ СЃС‚СЂРµР»Р°РјРё
 
-    private float targetFill = 1f;
-    private float currentFill = 1f;
-    private float velocity = 0f;
+    private List<Image> arrowImages = new List<Image>();
+    private int lastArrowCount = -1;
+    private bool isInitialized = false;
 
     private void Awake()
     {
         if (bow == null) bow = FindObjectOfType<Bow>();
-        if (fillImage == null) fillImage = transform.Find("Fill")?.GetComponent<Image>();
-        if (arrowText == null) arrowText = transform.Find("ArrowText")?.GetComponent<TMP_Text>();
+        if (arrowContainer == null) arrowContainer = transform.Find("ArrowContainer");
+        if (arrowIconPrefab == null)
+        {
+            Transform t = transform.Find("ArrowIcon");
+            if (t != null) arrowIconPrefab = t.GetComponent<Image>();
+        }
+        if (arrowCountText == null)
+        {
+            Transform t = transform.Find("ArrowCountText");
+            if (t != null) arrowCountText = t.GetComponent<TMP_Text>();
+        }
     }
 
     private void Start()
     {
+        if (bow == null || arrowContainer == null || arrowIconPrefab == null)
+        {
+            Debug.LogError("[ArrowBarUI] вќЊ РћС€РёР±РєР° РёРЅРёС†РёР°Р»РёР·Р°С†РёРё!");
+            enabled = false;
+            return;
+        }
+
+        arrowIconPrefab.gameObject.SetActive(false);
+        SpawnArrowUI();
+        isInitialized = true;
         UpdateArrowUI();
     }
 
     private void Update()
     {
-        // Плавная анимация и перекраска
-        int cur = bow.GetArrowCount();
-        int max = bow.maxArrows;
+        if (!isInitialized || bow == null) return;
 
-        float ratio = cur / (float)max;
-        targetFill = ratio;
-
-        currentFill = Mathf.SmoothDamp(currentFill, targetFill, ref velocity, smoothTime);
-        if (fillImage != null)
+        int currentArrows = bow.GetArrowCount();
+        if (currentArrows != lastArrowCount)
         {
-            fillImage.fillAmount = currentFill;
+            UpdateArrowUI();
+            lastArrowCount = currentArrows;
+        }
+    }
 
-            // По желанию: добавь диапазон для halfColor, если хочешь промежуточный цвет
-            if (ratio <= 0.33f)
-                fillImage.color = lowColor;
-            else if (ratio <= 0.66f)
-                fillImage.color = halfColor;
-            else
-                fillImage.color = fullColor;
+    private void SpawnArrowUI()
+    {
+        // Р§РёСЃС‚РёРј РєРѕРЅС‚РµР№РЅРµСЂ
+        foreach (Transform child in arrowContainer)
+        {
+            if (child.gameObject != arrowIconPrefab.gameObject)
+            {
+                Destroy(child.gameObject);
+            }
+        }
+        arrowImages.Clear();
+
+        int maxArrows = bow.maxArrows;
+
+        for (int i = 0; i < maxArrows; i++)
+        {
+            Image arrowImage = Instantiate(arrowIconPrefab, arrowContainer, false);
+            arrowImage.name = $"Arrow_{i}";
+            arrowImage.gameObject.SetActive(true);
+
+            RectTransform rectTransform = arrowImage.GetComponent<RectTransform>();
+            rectTransform.sizeDelta = new Vector2(cellSize, cellSize);
+
+            LayoutElement layoutElement = arrowImage.GetComponent<LayoutElement>();
+            if (layoutElement == null)
+                layoutElement = arrowImage.gameObject.AddComponent<LayoutElement>();
+
+            layoutElement.preferredWidth = cellSize;
+            layoutElement.preferredHeight = cellSize;
+
+            arrowImages.Add(arrowImage);
         }
 
-        UpdateArrowUI();
+        // в­ђ РЈР”РђР›РЇР•Рњ HorizontalLayoutGroup РµСЃР»Рё РµСЃС‚СЊ
+        HorizontalLayoutGroup oldHLG = arrowContainer.GetComponent<HorizontalLayoutGroup>();
+        if (oldHLG != null)
+            DestroyImmediate(oldHLG);
+
+        // в­ђ Р”РћР‘РђР’Р›РЇР•Рњ/РќРђРЎРўР РђРР’РђР•Рњ GridLayoutGroup
+        GridLayoutGroup gridLayout = arrowContainer.GetComponent<GridLayoutGroup>();
+        if (gridLayout == null)
+            gridLayout = arrowContainer.gameObject.AddComponent<GridLayoutGroup>();
+
+        gridLayout.cellSize = new Vector2(cellSize, cellSize);
+        gridLayout.spacing = new Vector2(spaceBetween, spaceBetween);
+        gridLayout.constraintCount = 5;  // 5 РЎРўР Р•Р› Р’ Р РЇР”РЈ (10 СЃС‚СЂРµР» = 2 СЂСЏРґР°)
+        gridLayout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        gridLayout.startCorner = GridLayoutGroup.Corner.UpperLeft;
+        gridLayout.startAxis = GridLayoutGroup.Axis.Horizontal;
+
+
+        Debug.Log($"[ArrowBarUI] вњ… РЎРµС‚РєР° 5x2 СЃ СЂР°Р·РјРµСЂРѕРј СЏС‡РµР№РєРё {cellSize}x{cellSize}!");
     }
 
     private void UpdateArrowUI()
     {
-        int cur = bow.GetArrowCount();
-        int max = bow.maxArrows;
+        if (arrowImages == null || arrowImages.Count == 0) return;
 
-        if (arrowText != null)
-            arrowText.text = $"{cur}/{max}";
+        int currentArrows = bow.GetArrowCount();
+
+        for (int i = 0; i < arrowImages.Count; i++)
+        {
+            if (i < currentArrows)
+            {
+                arrowImages[i].color = Color.white;      // в¬њ РџРѕР»РЅР°СЏ
+            }
+            else
+            {
+                arrowImages[i].color = new Color(0.4f, 0.4f, 0.4f, 0.6f);  // в¬› РџСѓСЃС‚Р°СЏ
+            }
+        }
+
+        if (arrowCountText != null)
+            arrowCountText.text = $"{currentArrows}/{bow.maxArrows}";
     }
-
-    // Можешь добавить дополнительные методы для реагирования на пополнение стрел
 }
