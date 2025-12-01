@@ -49,6 +49,7 @@ public class BossVisual : MonoBehaviour
     {
         if (_bossAI == null) return;
 
+        // Только параметры для аниматора, без смены направления
         _animator.SetBool(IS_RUNNING, _bossAI.IsRunning);
         _animator.SetFloat(CHASING_SPEED_MULTIPLIER, _bossAI.GetRoamingAnimationSpeed());
     }
@@ -68,24 +69,14 @@ public class BossVisual : MonoBehaviour
         _animator.SetBool(IS_DIE, true);
     }
 
-    // Эти методы вызываются Animation Event'ами
-    public void Animation_AttackStart()
+    // Вызываются из Animation Events (если нужно)
+    public void Animation_EnableHitCollider()
     {
-        // если хочешь, можно включать доп. коллайдеры/эффекты
-    }
-
-    public void Animation_AttackEnd()
-    {
-        // если атака была завязана на анимацию, тут можно закончить её
+        _bossEntity?.PolygonColliderTurnOn();
     }
 
     public void Animation_DisableHitCollider()
     {
         _bossEntity?.PolygonColliderTurnOff();
-    }
-
-    public void Animation_EnableHitCollider()
-    {
-        _bossEntity?.PolygonColliderTurnOn();
     }
 }

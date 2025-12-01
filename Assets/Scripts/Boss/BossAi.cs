@@ -6,11 +6,10 @@ using UnityEngine.AI;
 
 public class BossAI : MonoBehaviour
 {
-    public event EventHandler OnBossAttack;   // триггер анимации атаки
+    public event EventHandler OnBossAttack;
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 1.5f;
-    [SerializeField] private float chaseDistance = 10f;
 
     [Header("Attack Settings")]
     [SerializeField] private float attackRange = 3f;
@@ -19,13 +18,11 @@ public class BossAI : MonoBehaviour
     [SerializeField] private int attackDamage = 5;
     [SerializeField] private float attackRadius = 2f;
 
+    [Header("Stun (реакция на урон)")]
+    [SerializeField] private float stunDuration = 0.5f;
+
     [Header("References")]
     [SerializeField] private GameObject attackIndicatorPrefab;
-
-
-    private float _nextCheckDirectionTime = 0f;
-    private readonly float _checkDirectionDuration = 0.1f;
-    private Vector3 _lastPosition;
 
     private Transform player;
     private NavMeshAgent navMeshAgent;
@@ -34,11 +31,24 @@ public class BossAI : MonoBehaviour
 
     private bool isDead = false;
     private bool isAttacking = false;
+    private bool isStunned = false;
     private float nextAttackTime = 0f;
     private Coroutine currentAttackCoroutine;
     private readonly List<GameObject> activeIndicators = new List<GameObject>();
 
-    public bool IsRunning => navMeshAgent != null && navMeshAgent.enabled && navMeshAgent.velocity.sqrMagnitude > 0.01f;
+    // поворот
+    private float _nextCheckDirectionTime = 0f;
+    private readonly float _checkDirectionDuration = 0.1f;
+    private Vector3 _lastPosition;
+
+    // фиксация направления после появления точки атаки
+    private bool lockFacingDuringAttack = false;
+    private Vector3 attackLookTarget;
+
+    public bool IsRunning =>
+        navMeshAgent != null &&
+        navMeshAgent.enabled &&
+        navMeshAgent.velocity.sqrMagnitude > 0.01f;
 
     public float GetRoamingAnimationSpeed()
     {
@@ -46,32 +56,26 @@ public class BossAI : MonoBehaviour
         return navMeshAgent.speed / moveSpeed;
     }
 
+    public bool IsFacingLocked => lockFacingDuringAttack;
+    public Vector3 GetAttackLookTarget() => attackLookTarget;
+
     private void Awake()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
         rigidbody2D = GetComponent<Rigidbody2D>();
         bossEntity = GetComponent<BossEntity>();
-
-        Debug.Log("[BossAI] Awake - компоненты инициализированы");
     }
 
     private void Start()
     {
         GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
         if (playerObj != null)
-        {
             player = playerObj.transform;
-            Debug.Log("[BossAI] Игрок найден: " + player.gameObject.name);
-        }
         else
-        {
-            Debug.LogError("[BossAI] Игрок с тегом 'Player' не найден!");
-        }
+            Debug.LogError("[BossAI] Player с тегом 'Player' не найден!");
 
         if (bossEntity != null)
-        {
             bossEntity.OnDeath += BossEntity_OnDeath;
-        }
 
         if (navMeshAgent != null)
         {
@@ -104,16 +108,21 @@ public class BossAI : MonoBehaviour
 
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
-        // ВСЕГДА идём за игроком, если не кастуем атаку
-        if (!isAttacking && navMeshAgent != null && navMeshAgent.enabled)
+        // Движение: всегда идём к игроку, если НЕ атакуем и НЕ в стане
+        if (!isAttacking && !isStunned && navMeshAgent != null && navMeshAgent.enabled)
         {
             navMeshAgent.SetDestination(player.position);
         }
+        else if ((isAttacking || isStunned) && navMeshAgent != null && navMeshAgent.enabled)
+        {
+            navMeshAgent.ResetPath();
+        }
 
-        // Проверка на атаку
-        if (distanceToPlayer <= attackRange &&
-            Time.time >= nextAttackTime &&
-            !isAttacking)
+        // Атака: только если не в стане и не атакуем
+        if (!isStunned &&
+            !isAttacking &&
+            distanceToPlayer <= attackRange &&
+            Time.time >= nextAttackTime)
         {
             currentAttackCoroutine = StartCoroutine(PerformAttack());
         }
@@ -125,15 +134,21 @@ public class BossAI : MonoBehaviour
     {
         if (Time.time < _nextCheckDirectionTime) return;
 
-        // Если босс движется – ориентируемся по смещению
-        if (IsRunning)
+        if (lockFacingDuringAttack)
         {
-            ChangeFacingDirection(_lastPosition, transform.position);
+            // после появления точки атаки смотрим ТОЛЬКО в зафиксированную сторону
+            ChangeFacingDirection(transform.position, attackLookTarget);
         }
-        else if (player != null && (isAttacking || !isDead))
+        else
         {
-            // Если стоим (например, кастуем) – смотрим на игрока
-            ChangeFacingDirection(transform.position, player.position);
+            if (IsRunning)
+            {
+                ChangeFacingDirection(_lastPosition, transform.position);
+            }
+            else if (player != null && !isDead)
+            {
+                ChangeFacingDirection(transform.position, player.position);
+            }
         }
 
         _lastPosition = transform.position;
@@ -148,7 +163,6 @@ public class BossAI : MonoBehaviour
             transform.rotation = Quaternion.Euler(0, 0, 0);
     }
 
-
     private IEnumerator PerformAttack()
     {
         isAttacking = true;
@@ -159,19 +173,23 @@ public class BossAI : MonoBehaviour
 
         Vector3 targetAttackPosition = player != null ? player.position : transform.position;
 
-        // создаём индикатор
         GameObject indicator = null;
+
+        // МОМЕНТ ПОЯВЛЕНИЯ ТОЧКИ АТАКИ
         if (attackIndicatorPrefab != null)
         {
             indicator = Instantiate(attackIndicatorPrefab, targetAttackPosition, Quaternion.identity);
             activeIndicators.Add(indicator);
 
-            AttackIndicator indicatorScript = indicator.GetComponent<AttackIndicator>();
-            if (indicatorScript != null)
+            if (indicator.TryGetComponent(out AttackIndicator indicatorScript))
                 indicatorScript.Initialize(attackChargeTime, attackRadius);
+
+            if (player != null)
+                attackLookTarget = player.position;   // фиксируем направление
+
+            lockFacingDuringAttack = true;            // С ЭТОГО МОМЕНТА НЕ МЕНЯЕМ СТОРОНУ
         }
 
-        // говорим аниматору начать анимацию удара
         OnBossAttack?.Invoke(this, EventArgs.Empty);
 
         float timeElapsed = 0f;
@@ -188,6 +206,7 @@ public class BossAI : MonoBehaviour
                 Destroy(indicator);
                 activeIndicators.Remove(indicator);
             }
+            lockFacingDuringAttack = false;
             isAttacking = false;
             yield break;
         }
@@ -198,9 +217,9 @@ public class BossAI : MonoBehaviour
             activeIndicators.Remove(indicator);
         }
 
-        // наносим урон
         DamagePlayersInRadius(targetAttackPosition, attackRadius, attackDamage);
 
+        lockFacingDuringAttack = false;   // после удара снова можно поворачиваться
         isAttacking = false;
     }
 
@@ -225,10 +244,8 @@ public class BossAI : MonoBehaviour
     private void DestroyAllIndicators()
     {
         foreach (GameObject indicator in activeIndicators)
-        {
-            if (indicator != null)
-                Destroy(indicator);
-        }
+            if (indicator != null) Destroy(indicator);
+
         activeIndicators.Clear();
     }
 
@@ -237,6 +254,8 @@ public class BossAI : MonoBehaviour
         if (isDead) return;
 
         isDead = true;
+        lockFacingDuringAttack = false;
+        isStunned = false;
 
         if (currentAttackCoroutine != null)
             StopCoroutine(currentAttackCoroutine);
@@ -251,6 +270,27 @@ public class BossAI : MonoBehaviour
     private void BossEntity_OnDeath(object sender, EventArgs e)
     {
         SetDeathState();
+    }
+
+    /// <summary>
+    /// Вызывай из BossEntity.TakeDamage, если хочешь стан.
+    /// </summary>
+    public void Stun()
+    {
+        if (isDead) return;
+        StartCoroutine(StunRoutine());
+    }
+
+    private IEnumerator StunRoutine()
+    {
+        isStunned = true;
+
+        if (navMeshAgent != null && navMeshAgent.enabled)
+            navMeshAgent.ResetPath();
+
+        yield return new WaitForSeconds(stunDuration);
+
+        isStunned = false;
     }
 
     private void OnDrawGizmosSelected()

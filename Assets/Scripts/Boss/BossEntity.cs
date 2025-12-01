@@ -43,8 +43,12 @@ public class BossEntity : MonoBehaviour
         OnTakeHit?.Invoke(this, EventArgs.Empty);
         OnHealthChanged?.Invoke(this, EventArgs.Empty);
 
+        // Стан босса при уроне
+        _bossAI?.Stun();
+
         DetectDeath();
     }
+
 
     public void PolygonColliderTurnOff()
     {

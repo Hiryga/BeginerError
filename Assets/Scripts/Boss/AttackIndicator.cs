@@ -39,7 +39,13 @@ public class AttackIndicator : MonoBehaviour
         {
             currentTime += Time.deltaTime;
             float progress = Mathf.Clamp01(currentTime / fillTime);
+
+            // прозрачность
             spriteRenderer.color = Color.Lerp(startColor, endColor, progress);
+
+            // опционально – анимация роста круга
+            transform.localScale = Vector3.Lerp(Vector3.zero, targetScale, progress);
         }
     }
+
 }
