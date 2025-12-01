@@ -48,7 +48,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 16
+  spritePixelsToUnits: 6
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -93,131 +93,186 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Idle_0
+      name: noBKG_KnightRun_strip_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 42
+        y: 20
+        width: 25
+        height: 29
+      alignment: 9
+      pivot: {x: 0.2, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a39ec013dc6cc44488eb453520027a48
-      internalID: -1575410051
+      spriteID: e656cf676360904448e013aca7bf1ee7
+      internalID: -714876370
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Idle_1
+      name: noBKG_KnightRun_strip_1
       rect:
         serializedVersion: 2
-        x: 128
-        y: 0
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 140
+        y: 20
+        width: 25
+        height: 30
+      alignment: 9
+      pivot: {x: 0.2, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e9a5a6bd549b47048af611e39d6c6215
-      internalID: -293391782
+      spriteID: fed3ce7d4865aee4ba621cc11b0125d5
+      internalID: 1100409121
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Idle_2
+      name: noBKG_KnightRun_strip_2
       rect:
         serializedVersion: 2
-        x: 256
-        y: 0
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 236
+        y: 20
+        width: 27
+        height: 29
+      alignment: 9
+      pivot: {x: 0.2, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: fbc0c53c872991342972ce42e1f46fe2
-      internalID: 1046874279
+      spriteID: a6e0dc02a8d987f4ea7c252e2ee9701a
+      internalID: -727809588
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Idle_3
+      name: noBKG_KnightRun_strip_3
       rect:
         serializedVersion: 2
-        x: 384
-        y: 0
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 330
+        y: 20
+        width: 30
+        height: 28
+      alignment: 9
+      pivot: {x: 0.2, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a6aaf784b5d3fe64e956e0b4159b4ee0
-      internalID: 1904211566
+      spriteID: f2caafe535984f44f937d3b28c973294
+      internalID: -1490970645
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Idle_4
+      name: noBKG_KnightRun_strip_4
       rect:
         serializedVersion: 2
-        x: 512
-        y: 0
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 426
+        y: 20
+        width: 29
+        height: 29
+      alignment: 9
+      pivot: {x: 0.2, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 341b776525d6f1944b551f59c5f40315
-      internalID: -429608803
+      spriteID: 952f5cf577dc35a48942715e1f8637fd
+      internalID: 1698198747
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Idle_5
+      name: noBKG_KnightRun_strip_5
       rect:
         serializedVersion: 2
-        x: 640
-        y: 0
-        width: 128
-        height: 128
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 524
+        y: 20
+        width: 25
+        height: 30
+      alignment: 9
+      pivot: {x: 0.2, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: cb8a9d6c058a2a14ab1cf2710a53dda6
-      internalID: 113554494
+      spriteID: 6087023f375c63b4ea3b530f87ec980f
+      internalID: 1118104627
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: noBKG_KnightRun_strip_6
+      rect:
+        serializedVersion: 2
+        x: 618
+        y: 20
+        width: 25
+        height: 29
+      alignment: 9
+      pivot: {x: 0.2, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3987cb010093a3d43985f1e0f81880ba
+      internalID: -1884554953
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: noBKG_KnightRun_strip_7
+      rect:
+        serializedVersion: 2
+        x: 713
+        y: 20
+        width: 25
+        height: 28
+      alignment: 9
+      pivot: {x: 0.2, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7462d4ded38e8934db70b9e91839f58a
+      internalID: 347936310
       vertices: []
       indices: 
       edges: []
@@ -233,12 +288,14 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Idle_0: -1575410051
-      Idle_1: -293391782
-      Idle_2: 1046874279
-      Idle_3: 1904211566
-      Idle_4: -429608803
-      Idle_5: 113554494
+      noBKG_KnightRun_strip_0: -714876370
+      noBKG_KnightRun_strip_1: 1100409121
+      noBKG_KnightRun_strip_2: -727809588
+      noBKG_KnightRun_strip_3: -1490970645
+      noBKG_KnightRun_strip_4: 1698198747
+      noBKG_KnightRun_strip_5: 1118104627
+      noBKG_KnightRun_strip_6: -1884554953
+      noBKG_KnightRun_strip_7: 347936310
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

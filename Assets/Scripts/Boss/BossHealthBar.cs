@@ -8,7 +8,6 @@ public class BossHealthBar : MonoBehaviour
 
     private void Awake()
     {
-        // Находим BossEntity через родителей
         bossEntity = GetComponentInParent<BossEntity>();
     }
 
@@ -16,18 +15,17 @@ public class BossHealthBar : MonoBehaviour
     {
         if (bossEntity == null)
         {
-            Debug.LogError("BossEntity не найден!");
+            Debug.LogError("BossEntity не найден для BossHealthBar!");
             return;
         }
 
-        // Подписываемся на изменение HP
         bossEntity.OnHealthChanged += UpdateBar;
-        UpdateBar(null, null); // Обновляем сразу
+        UpdateBar(null, null);
     }
 
     private void UpdateBar(object sender, System.EventArgs e)
     {
-        if (healthFillImage == null) return;
+        if (healthFillImage == null || bossEntity == null) return;
         healthFillImage.fillAmount = bossEntity.GetHealthPercent();
     }
 

@@ -33,11 +33,12 @@ public class BossEntity : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        _currentHealth -= damage;
-        _currentHealth = Mathf.Max(_currentHealth, 0);
+        if (_currentHealth <= 0) return;
 
-        // ЛОГ HP БОССА
-        Debug.Log($"[Boss] 💔 HP: {_currentHealth}/{_maxHealth} ({GetHealthPercent() * 100:F0}%)");
+        _currentHealth -= damage;
+        if (_currentHealth < 0) _currentHealth = 0;
+
+        Debug.Log($"[Boss] HP: {_currentHealth}/{_maxHealth} ({GetHealthPercent() * 100:F0}%)");
 
         OnTakeHit?.Invoke(this, EventArgs.Empty);
         OnHealthChanged?.Invoke(this, EventArgs.Empty);
@@ -59,19 +60,19 @@ public class BossEntity : MonoBehaviour
 
     private void DetectDeath()
     {
-        if (_currentHealth <= 0)
-        {
-            if (_boxCollider2D != null)
-                _boxCollider2D.enabled = false;
-            if (_polygonCollider2D != null)
-                _polygonCollider2D.enabled = false;
+        if (_currentHealth > 0) return;
 
-            if (_bossAI != null)
-                _bossAI.SetDeathState();
+        if (_boxCollider2D != null)
+            _boxCollider2D.enabled = false;
 
-            OnDeath?.Invoke(this, EventArgs.Empty);
+        if (_polygonCollider2D != null)
+            _polygonCollider2D.enabled = false;
 
-            Debug.Log("[Boss] ☠️ БОСС ПОБЕЖДЕН!");
-        }
+        if (_bossAI != null)
+            _bossAI.SetDeathState();
+
+        OnDeath?.Invoke(this, EventArgs.Empty);
+
+        Debug.Log("[Boss] ☠ БОСС ПОБЕЖДЁН!");
     }
 }

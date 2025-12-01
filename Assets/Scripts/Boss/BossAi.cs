@@ -6,10 +6,11 @@ using UnityEngine.AI;
 
 public class BossAI : MonoBehaviour
 {
-    public event EventHandler OnBossAttack;
+    public event EventHandler OnBossAttack;   // триггер анимации атаки
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 1.5f;
+    [SerializeField] private float chaseDistance = 10f;
 
     [Header("Attack Settings")]
     [SerializeField] private float attackRange = 3f;
@@ -21,15 +22,29 @@ public class BossAI : MonoBehaviour
     [Header("References")]
     [SerializeField] private GameObject attackIndicatorPrefab;
 
+
+    private float _nextCheckDirectionTime = 0f;
+    private readonly float _checkDirectionDuration = 0.1f;
+    private Vector3 _lastPosition;
+
     private Transform player;
     private NavMeshAgent navMeshAgent;
     private Rigidbody2D rigidbody2D;
     private BossEntity bossEntity;
+
     private bool isDead = false;
     private bool isAttacking = false;
     private float nextAttackTime = 0f;
     private Coroutine currentAttackCoroutine;
-    private List<GameObject> activeIndicators = new List<GameObject>(); // Список активных индикаторов
+    private readonly List<GameObject> activeIndicators = new List<GameObject>();
+
+    public bool IsRunning => navMeshAgent != null && navMeshAgent.enabled && navMeshAgent.velocity.sqrMagnitude > 0.01f;
+
+    public float GetRoamingAnimationSpeed()
+    {
+        if (navMeshAgent == null || moveSpeed <= 0.01f) return 1f;
+        return navMeshAgent.speed / moveSpeed;
+    }
 
     private void Awake()
     {
@@ -37,7 +52,7 @@ public class BossAI : MonoBehaviour
         rigidbody2D = GetComponent<Rigidbody2D>();
         bossEntity = GetComponent<BossEntity>();
 
-        Debug.Log("[BossAI] Awake - Компоненты инициализированы");
+        Debug.Log("[BossAI] Awake - компоненты инициализированы");
     }
 
     private void Start()
@@ -50,7 +65,7 @@ public class BossAI : MonoBehaviour
         }
         else
         {
-            Debug.LogError("[BossAI] ОШИБКА: Игрок не найден! Проверьте тег 'Player'");
+            Debug.LogError("[BossAI] Игрок с тегом 'Player' не найден!");
         }
 
         if (bossEntity != null)
@@ -63,24 +78,18 @@ public class BossAI : MonoBehaviour
             navMeshAgent.updateRotation = false;
             navMeshAgent.updateUpAxis = false;
             navMeshAgent.speed = moveSpeed;
-            navMeshAgent.stoppingDistance = attackRange - 0.5f;
-            Debug.Log($"[BossAI] NavMeshAgent готов. Speed: {moveSpeed}");
+            navMeshAgent.stoppingDistance = attackRange - 0.3f;
         }
 
         if (rigidbody2D != null)
-        {
             rigidbody2D.constraints = RigidbodyConstraints2D.FreezeRotation;
-        }
     }
 
     private void OnDestroy()
     {
         if (bossEntity != null)
-        {
             bossEntity.OnDeath -= BossEntity_OnDeath;
-        }
 
-        // Уничтожаем оставшиеся индикаторы
         DestroyAllIndicators();
     }
 
@@ -89,56 +98,80 @@ public class BossAI : MonoBehaviour
         if (isDead || player == null)
         {
             if (navMeshAgent != null && navMeshAgent.enabled)
-            {
                 navMeshAgent.ResetPath();
-            }
             return;
         }
 
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
+        // ВСЕГДА идём за игроком, если не кастуем атаку
+        if (!isAttacking && navMeshAgent != null && navMeshAgent.enabled)
+        {
+            navMeshAgent.SetDestination(player.position);
+        }
+
+        // Проверка на атаку
         if (distanceToPlayer <= attackRange &&
             Time.time >= nextAttackTime &&
             !isAttacking)
         {
-            Debug.Log("[BossAI] Начало атаки!");
             currentAttackCoroutine = StartCoroutine(PerformAttack());
         }
-        else if (!isAttacking && navMeshAgent != null && navMeshAgent.enabled)
-        {
-            navMeshAgent.SetDestination(player.position);
-        }
+
+        HandleFacingDirection();
     }
+
+    private void HandleFacingDirection()
+    {
+        if (Time.time < _nextCheckDirectionTime) return;
+
+        // Если босс движется – ориентируемся по смещению
+        if (IsRunning)
+        {
+            ChangeFacingDirection(_lastPosition, transform.position);
+        }
+        else if (player != null && (isAttacking || !isDead))
+        {
+            // Если стоим (например, кастуем) – смотрим на игрока
+            ChangeFacingDirection(transform.position, player.position);
+        }
+
+        _lastPosition = transform.position;
+        _nextCheckDirectionTime = Time.time + _checkDirectionDuration;
+    }
+
+    private void ChangeFacingDirection(Vector3 sourcePosition, Vector3 targetPosition)
+    {
+        if (sourcePosition.x > targetPosition.x)
+            transform.rotation = Quaternion.Euler(0, -180, 0);
+        else
+            transform.rotation = Quaternion.Euler(0, 0, 0);
+    }
+
 
     private IEnumerator PerformAttack()
     {
         isAttacking = true;
         nextAttackTime = Time.time + attackCooldown;
 
-        Debug.Log("[BossAI] ===== НАЧАЛО АТАКИ =====");
-
         if (navMeshAgent != null && navMeshAgent.enabled)
-        {
             navMeshAgent.ResetPath();
-        }
 
-        Vector3 targetAttackPosition = player.position;
-        Debug.Log($"[BossAI] Цель атаки: {targetAttackPosition}");
+        Vector3 targetAttackPosition = player != null ? player.position : transform.position;
 
+        // создаём индикатор
         GameObject indicator = null;
         if (attackIndicatorPrefab != null)
         {
             indicator = Instantiate(attackIndicatorPrefab, targetAttackPosition, Quaternion.identity);
-            activeIndicators.Add(indicator); // Добавляем в список
+            activeIndicators.Add(indicator);
 
             AttackIndicator indicatorScript = indicator.GetComponent<AttackIndicator>();
             if (indicatorScript != null)
-            {
                 indicatorScript.Initialize(attackChargeTime, attackRadius);
-                Debug.Log("[BossAI] Индикатор создан на позиции игрока");
-            }
         }
 
+        // говорим аниматору начать анимацию удара
         OnBossAttack?.Invoke(this, EventArgs.Empty);
 
         float timeElapsed = 0f;
@@ -148,14 +181,12 @@ public class BossAI : MonoBehaviour
             yield return null;
         }
 
-        // ВАЖНО: Если босс умер - отменяем атаку и уничтожаем индикатор
         if (isDead)
         {
-            Debug.Log("[BossAI] ☠️ Босс умер! Атака отменена.");
             if (indicator != null)
             {
                 Destroy(indicator);
-                activeIndicators.Remove(indicator); // Удаляем из списка
+                activeIndicators.Remove(indicator);
             }
             isAttacking = false;
             yield break;
@@ -164,15 +195,11 @@ public class BossAI : MonoBehaviour
         if (indicator != null)
         {
             Destroy(indicator);
-            activeIndicators.Remove(indicator); // Удаляем из списка
+            activeIndicators.Remove(indicator);
         }
 
-        // Наносим урон только если босс живой
-        if (!isDead)
-        {
-            DamagePlayersInRadius(targetAttackPosition, attackRadius, attackDamage);
-            Debug.Log($"[BossAI] ===== АТАКА ЗАВЕРШЕНА =====");
-        }
+        // наносим урон
+        DamagePlayersInRadius(targetAttackPosition, attackRadius, attackDamage);
 
         isAttacking = false;
     }
@@ -180,63 +207,45 @@ public class BossAI : MonoBehaviour
     private void DamagePlayersInRadius(Vector3 position, float radius, int damage)
     {
         Collider2D[] hits = Physics2D.OverlapCircleAll(position, radius);
-        System.Collections.Generic.HashSet<PlayerHealth> damagedPlayers =
-            new System.Collections.Generic.HashSet<PlayerHealth>();
+        var damagedPlayers = new HashSet<PlayerHealth>();
 
         foreach (Collider2D hit in hits)
         {
-            if (hit.CompareTag("Player"))
-            {
-                PlayerHealth playerHealth = hit.GetComponent<PlayerHealth>();
-                if (playerHealth != null && !damagedPlayers.Contains(playerHealth))
-                {
-                    playerHealth.TakeDamage(damage);
-                    damagedPlayers.Add(playerHealth);
-                    Debug.Log($"[BossAI] ⚔️ Урон нанесен игроку: {damage}");
-                }
-            }
-        }
+            if (!hit.CompareTag("Player")) continue;
 
-        if (damagedPlayers.Count == 0)
-        {
-            Debug.Log("[BossAI] ✓ Игрок уклонился от атаки!");
+            if (hit.TryGetComponent(out PlayerHealth playerHealth) &&
+                !damagedPlayers.Contains(playerHealth))
+            {
+                playerHealth.TakeDamage(damage);
+                damagedPlayers.Add(playerHealth);
+            }
         }
     }
 
-    // Уничтожаем ВСЕ активные индикаторы
     private void DestroyAllIndicators()
     {
         foreach (GameObject indicator in activeIndicators)
         {
             if (indicator != null)
-            {
                 Destroy(indicator);
-                Debug.Log("[BossAI] ⛔ Индикатор уничтожен при смерти босса");
-            }
         }
         activeIndicators.Clear();
     }
 
     public void SetDeathState()
     {
+        if (isDead) return;
+
         isDead = true;
 
-        // Останавливаем текущую атаку
         if (currentAttackCoroutine != null)
-        {
             StopCoroutine(currentAttackCoroutine);
-            Debug.Log("[BossAI] ⛔ Текущая атака прервана");
-        }
 
-        // Уничтожаем ВСЕ индикаторы
         DestroyAllIndicators();
-
         isAttacking = false;
 
         if (navMeshAgent != null && navMeshAgent.enabled)
-        {
             navMeshAgent.enabled = false;
-        }
     }
 
     private void BossEntity_OnDeath(object sender, EventArgs e)
