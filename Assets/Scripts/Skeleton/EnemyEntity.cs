@@ -1,11 +1,8 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyEntity : MonoBehaviour
 {
-
     public event EventHandler OnTakeHit;
     public event EventHandler OnDeath;
 
@@ -20,12 +17,14 @@ public class EnemyEntity : MonoBehaviour
     private PolygonCollider2D _polygonCollider2D;
     private BoxCollider2D _boxCollider2D;
     private EnemyAI _enemyAI;
+
     private void Awake()
     {
         _polygonCollider2D = GetComponent<PolygonCollider2D>();
         _boxCollider2D = GetComponent<BoxCollider2D>();
         _enemyAI = GetComponent<EnemyAI>();
     }
+
     private void Start()
     {
         _currentHealth = _maxHealth;
@@ -35,11 +34,16 @@ public class EnemyEntity : MonoBehaviour
     {
         _currentHealth -= damage;
 
-        // ВЫВОД В КОНСОЛЬ
         Debug.Log($"[Enemy] {gameObject.name} HP: {_currentHealth}/{_maxHealth}");
 
         OnTakeHit?.Invoke(this, EventArgs.Empty);
         DetectDeath();
+
+        // ПРОВОЦИРУЕМ AI: начинаем преследование игрока
+        if (_enemyAI != null)
+        {
+            _enemyAI.Provoke();
+        }
     }
 
     public void PolygonColliderTurnOff()
@@ -52,15 +56,17 @@ public class EnemyEntity : MonoBehaviour
         _polygonCollider2D.enabled = true;
         _playerHitThisAttack = false;
     }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (_polygonCollider2D.enabled && !_playerHitThisAttack && collision.TryGetComponent(out PlayerHealth playerHealth))
+        if (_polygonCollider2D.enabled &&
+            !_playerHitThisAttack &&
+            collision.TryGetComponent(out PlayerHealth playerHealth))
         {
-            playerHealth.TakeDamage(1); // или свой параметр урона
-            _playerHitThisAttack = true; // игрок НЕ получит урон до следующей атаки
+            playerHealth.TakeDamage(1);
+            _playerHitThisAttack = true;
         }
     }
-
 
     private void DetectDeath()
     {
@@ -69,12 +75,10 @@ public class EnemyEntity : MonoBehaviour
             _boxCollider2D.enabled = false;
             _polygonCollider2D.enabled = false;
 
-            _enemyAI.SetDeathState();
+            if (_enemyAI != null)
+                _enemyAI.SetDeathState();
+
             OnDeath?.Invoke(this, EventArgs.Empty);
         }
-
     }
-
-
-
 }
