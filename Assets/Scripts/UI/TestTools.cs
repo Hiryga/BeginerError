@@ -14,5 +14,13 @@ public class TestTools : MonoBehaviour
                 skeleton.TakeDamage(skeleton.GetCurrentHealth());
             }
         }
+        var bosses = FindObjectsOfType<BossEntity>();
+        foreach (var boss in bosses)
+        {
+            if (boss != null && boss.GetCurrentHealth() > 0)
+            {
+                boss.TakeDamage(boss.GetCurrentHealth());
+            }
+        }
     }
 }

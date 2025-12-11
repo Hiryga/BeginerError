@@ -108842,7 +108842,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 44.00006, y: -67.999985}
+  m_AnchoredPosition: {x: 44.00006, y: -68}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &874909403
@@ -112385,6 +112385,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   level: Level2
   levelCompletePanel: {fileID: 1394043495}
+  gameCompletePanel: {fileID: 0}
+  bossSceneName: BossLevel
 --- !u!1001 &1705877356
 PrefabInstance:
   m_ObjectHideFlags: 0
