@@ -1,24 +1,39 @@
-using UnityEngine;
+п»їusing UnityEngine;
 using UnityEngine.AI;
 using BeginerError.Utils;
 using System;
 
 public class EnemyAI : MonoBehaviour
 {
+    [Header("Debug")]
+    [SerializeField] private bool showDebugInfo = true;
+
+    private void OnDrawGizmosSelected()
+    {
+        if (!showDebugInfo) return;
+
+        // Р—РѕРЅР° РѕР±РЅР°СЂСѓР¶РµРЅРёСЏ
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, detectionDistance);
+
+        // Р—РѕРЅР° Р°С‚Р°РєРё
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackingDistance);
+    }
+
     [Header("States")]
     [SerializeField] private State startingState = State.Roaming;
-    [SerializeField] private bool isChasingEnemy = false;
     [SerializeField] private bool isAttackingEnemy = true;
 
     [Header("Roaming")]
     [SerializeField] private float roamingDistanceMax = 7f;
-    [SerializeField] private float roamimgDistanceMin = 3f;
-    [SerializeField] private float roamimgTimerMax = 2f;
+    [SerializeField] private float roamingDistanceMin = 3f;
+    [SerializeField] private float roamingTimerMax = 2f;
 
-    [Header("Chasing")]
-    [SerializeField] private float chasingDistance = 4f;
+    [Header("Detection & Chasing")]
+    [SerializeField] private float detectionDistance = 5f;      // Р Р°РґРёСѓСЃ РѕР±РЅР°СЂСѓР¶РµРЅРёСЏ РёРіСЂРѕРєР° РїСЂРё РїР°С‚СЂСѓР»РёСЂРѕРІР°РЅРёРё
     [SerializeField] private float chasingSpeedMultiplier = 2f;
-    [SerializeField] private float chaseTimeout = 3f;   // сколько секунд преследует после провокации
+    [SerializeField] private float chaseTimeout = 3f;           // РљР°Рє РґРѕР»РіРѕ РїСЂРµСЃР»РµРґРѕРІР°С‚СЊ РїРѕСЃР»Рµ РїСЂРѕРІРѕРєР°С†РёРё
 
     [Header("Attacking")]
     [SerializeField] private float attackingDistance = 2f;
@@ -39,13 +54,15 @@ public class EnemyAI : MonoBehaviour
     private readonly float _checkDirectionDuration = 0.1f;
     private Vector3 _lastPosition;
 
-    // таймер преследования после провокации
+    // РўР°Р№РјРµСЂ РїСЂРµСЃР»РµРґРѕРІР°РЅРёСЏ: РєРѕРіРґР° > 0, РІСЂР°Рі Р°РєС‚РёРІРЅРѕ РїСЂРµСЃР»РµРґСѓРµС‚
     private float _chaseTimer = 0f;
-    private bool _wasProvoked = false;
+
+    // Р¤Р»Р°Рі Р°РєС‚РёРІРЅРѕРіРѕ РїСЂРµСЃР»РµРґРѕРІР°РЅРёСЏ: РІРєР»СЋС‡Р°РµС‚СЃСЏ РєРѕРіРґР° РІРёРґРёРј РёРіСЂРѕРєР° РёР»Рё РїСЂРѕРІРѕС†РёСЂРѕРІР°РЅС‹
+    private bool _isActivelyChasing = false;
 
     public event EventHandler OnEnemyAttack;
 
-    public bool IsRunning => _navMeshAgent.velocity != Vector3.zero;
+    public bool IsRunning => _navMeshAgent.velocity.magnitude > 0.01f;
 
     public float AttackingDistance => attackingDistance;
 
@@ -82,19 +99,15 @@ public class EnemyAI : MonoBehaviour
     }
 
     /// <summary>
-    /// Вызывается EnemyEntity при получении урона.
-    /// Переводит врага в состояние преследования.
+    /// Р’С‹Р·С‹РІР°РµС‚СЃСЏ EnemyEntity РїСЂРё РїРѕР»СѓС‡РµРЅРёРё СѓСЂРѕРЅР°.
+    /// РџСЂРѕРІРѕС†РёСЂСѓРµС‚ РІСЂР°РіР° РЅР° РїСЂРµСЃР»РµРґРѕРІР°РЅРёРµ.
     /// </summary>
     public void Provoke()
     {
         if (_currentState == State.Death) return;
 
-        _wasProvoked = true;
+        _isActivelyChasing = true;
         _chaseTimer = chaseTimeout;
-        isChasingEnemy = true;
-
-        _navMeshAgent.speed = _chasingSpeed;
-        _currentState = State.Chasing;
     }
 
     private void StateHandler()
@@ -102,13 +115,8 @@ public class EnemyAI : MonoBehaviour
         switch (_currentState)
         {
             case State.Roaming:
-                _roamingTimer -= Time.deltaTime;
-                if (_roamingTimer < 0)
-                {
-                    Roaming();
-                    _roamingTimer = roamimgTimerMax;
-                }
-                CheckCurrentState();
+                HandleRoaming();
+                CheckCurrentState(); // РџСЂРѕРІРµСЂСЏРµРј РљРђР–Р”Р«Р™ РєР°РґСЂ РІ Roaming
                 break;
 
             case State.Chasing:
@@ -123,7 +131,6 @@ public class EnemyAI : MonoBehaviour
                 break;
 
             case State.Death:
-                // ничего не делаем
                 break;
 
             default:
@@ -133,24 +140,29 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
+
+    private void HandleRoaming()
+    {
+        _roamingTimer -= Time.deltaTime;
+        if (_roamingTimer <= 0)
+        {
+            Roaming();
+            _roamingTimer = roamingTimerMax;
+        }
+    }
+
     private void HandleChaseTimeout()
     {
-        if (!_wasProvoked) return;
+        if (!_isActivelyChasing) return;
 
         _chaseTimer -= Time.deltaTime;
         if (_chaseTimer <= 0f)
         {
-            // перестаём преследовать и возвращаемся к бродяжничеству
-            _wasProvoked = false;
-            isChasingEnemy = false;
-            _navMeshAgent.speed = _roamingSpeed;
-            _roamingTimer = 0f; // сбрасываем таймер, чтобы сразу получить новую точку
-            _currentState = State.Roaming;
-
-            Roaming();
+            // Р’СЂРµРјСЏ РїСЂРµСЃР»РµРґРѕРІР°РЅРёСЏ РёСЃС‚РµРєР»Рѕ
+            _isActivelyChasing = false;
+            _chaseTimer = 0f;
         }
     }
-
 
     private void ChasingTarget()
     {
@@ -168,30 +180,45 @@ public class EnemyAI : MonoBehaviour
         if (Player.Instance == null) return;
 
         float distanceToPlayer = Vector3.Distance(transform.position, Player.Instance.transform.position);
+        bool playerIsAlive = Player.Instance.IsAlive();
         State newState = _currentState;
 
-        // логика преследования по дистанции (если включено isChasingEnemy)
-        if (isChasingEnemy && _currentState != State.Death)
-        {
-            if (distanceToPlayer <= chasingDistance)
-                newState = State.Chasing;
-        }
+        // ====== Р›РћР“РРљРђ РћРџР Р•Р”Р•Р›Р•РќРРЇ РЎРћРЎРўРћРЇРќРРЇ ======
 
-        // логика атаки
-        if (isAttackingEnemy && _currentState != State.Death)
+        // 1пёЏвѓЈ РђРўРђРљРђ - СЃР°РјС‹Р№ РІС‹СЃРѕРєРёР№ РїСЂРёРѕСЂРёС‚РµС‚
+        if (isAttackingEnemy && distanceToPlayer <= attackingDistance && playerIsAlive)
         {
-            if (distanceToPlayer <= attackingDistance)
-                newState = Player.Instance.IsAlive() ? State.Attacking : State.Roaming;
+            newState = State.Attacking;
         }
+        // 2пёЏвѓЈ РџР Р•РЎР›Р•Р”РћР’РђРќРР• - РµСЃР»Рё РјС‹ Р°РєС‚РёРІРЅРѕ РїСЂРµСЃР»РµРґСѓРµРј РР›Р РІРёРґРёРј РёРіСЂРѕРєР° РІ Р·РѕРЅРµ РѕР±РЅР°СЂСѓР¶РµРЅРёСЏ
+        else if (playerIsAlive && (
+            _isActivelyChasing ||  // Р’РєР»СЋС‡РµРЅРѕ С„Р»Р°РіРѕРј РїСЂРѕРІРѕРєР°С†РёРё
+            distanceToPlayer <= detectionDistance  // РР›Р РІРёРґРёРј РІ Р·РѕРЅРµ РѕР±РЅР°СЂСѓР¶РµРЅРёСЏ
+        ))
+        {
+            newState = State.Chasing;
 
-        // если игрок слишком далеко, а провокация уже прошла — уходим в Roaming
-        if (!_wasProvoked && distanceToPlayer > chasingDistance * 2f && _currentState == State.Chasing)
+            // Р•СЃР»Рё РІРёРґРёРј РёРіСЂРѕРєР° РїСЂРё РїР°С‚СЂСѓР»РёСЂРѕРІР°РЅРёРё - РІРєР»СЋС‡Р°РµРј РїСЂРµСЃР»РµРґРѕРІР°РЅРёРµ
+            if (!_isActivelyChasing && distanceToPlayer <= detectionDistance)
+            {
+                _isActivelyChasing = true;
+                _chaseTimer = chaseTimeout;
+                Debug.Log($"[{gameObject.name}] Р’РёРґРёРј РёРіСЂРѕРєР°! РќР°С‡РёРЅР°РµРј РїСЂРµСЃР»РµРґРѕРІР°РЅРёРµ");
+            }
+        }
+        // 3пёЏвѓЈ РџРђРўР РЈР›РР РћР’РђРќРР• - РґРµС„РѕР»С‚ СЃРѕСЃС‚РѕСЏРЅРёРµ
+        else
         {
             newState = State.Roaming;
+            _isActivelyChasing = false;
+            _chaseTimer = 0f;
         }
 
+        // ====== РџР РРњР•РќР•РќРР• РЎРњР•РќР« РЎРћРЎРўРћРЇРќРРЇ ======
         if (newState != _currentState)
         {
+            Debug.Log($"[{gameObject.name}] РџРµСЂРµС…РѕРґ: {_currentState} в†’ {newState}");
+
             if (newState == State.Chasing)
             {
                 _navMeshAgent.ResetPath();
@@ -201,7 +228,6 @@ public class EnemyAI : MonoBehaviour
             {
                 _roamingTimer = 0f;
                 _navMeshAgent.speed = _roamingSpeed;
-                // ИСПРАВЛЕНИЕ: сразу устанавливаем точку патрулирования
                 Roaming();
             }
             else if (newState == State.Attacking)
@@ -216,13 +242,25 @@ public class EnemyAI : MonoBehaviour
 
     private void AttackingTarget()
     {
-        if (Time.time > _nextAttackTime)
+        if (Player.Instance == null) return;
+
+        float distanceToPlayer = Vector3.Distance(transform.position, Player.Instance.transform.position);
+
+        // Р•СЃР»Рё РёРіСЂРѕРє СѓР±РµР¶Р°Р» РёР· Р·РѕРЅС‹ Р°С‚Р°РєРё - РЅРµ Р°С‚Р°РєСѓРµРј, РЅРѕ РјРѕР¶РµРј РїСЂРµСЃР»РµРґРѕРІР°С‚СЊ РґР°Р»СЊС€Рµ
+        if (distanceToPlayer > attackingDistance && _isActivelyChasing)
+        {
+            // РЎРѕС…СЂР°РЅСЏРµРј РїСЂРµСЃР»РµРґРѕРІР°РЅРёРµ, РІС‹С…РѕРґРёРј РёР· Attacking РІ СЃР»РµРґСѓСЋС‰РµРј CheckCurrentState
+            return;
+        }
+
+        // РђС‚Р°РєСѓРµРј С‚РѕР»СЊРєРѕ РµСЃР»Рё РёРіСЂРѕРє РІ Р·РѕРЅРµ Р°С‚Р°РєРё
+        if (Time.time >= _nextAttackTime && distanceToPlayer <= attackingDistance)
         {
             OnEnemyAttack?.Invoke(this, EventArgs.Empty);
             _nextAttackTime = Time.time + attackRate;
         }
 
-        // в атаке тоже смотрим на игрока
+        // РЎРјРѕС‚СЂРёРј РЅР° РёРіСЂРѕРєР°
         if (Player.Instance != null)
         {
             ChangeFacingDirection(transform.position, Player.Instance.transform.position);
@@ -231,20 +269,19 @@ public class EnemyAI : MonoBehaviour
 
     private void MovementDirectionHandler()
     {
-        if (Time.time > _nextCheckDirectionTime)
-        {
-            if (IsRunning)
-            {
-                ChangeFacingDirection(_lastPosition, transform.position);
-            }
-            else if (_currentState == State.Attacking && Player.Instance != null)
-            {
-                ChangeFacingDirection(transform.position, Player.Instance.transform.position);
-            }
+        if (Time.time < _nextCheckDirectionTime) return;
 
-            _lastPosition = transform.position;
-            _nextCheckDirectionTime = Time.time + _checkDirectionDuration;
+        if (IsRunning)
+        {
+            ChangeFacingDirection(_lastPosition, transform.position);
         }
+        else if (_currentState == State.Attacking && Player.Instance != null)
+        {
+            ChangeFacingDirection(transform.position, Player.Instance.transform.position);
+        }
+
+        _lastPosition = transform.position;
+        _nextCheckDirectionTime = Time.time + _checkDirectionDuration;
     }
 
     private void Roaming()
@@ -256,7 +293,7 @@ public class EnemyAI : MonoBehaviour
 
     private Vector3 GetRoamingPosition()
     {
-        return _startingPosition + Utils.GetRandomDir() * UnityEngine.Random.Range(roamimgDistanceMin, roamingDistanceMax);
+        return _startingPosition + Utils.GetRandomDir() * UnityEngine.Random.Range(roamingDistanceMin, roamingDistanceMax);
     }
 
     private void ChangeFacingDirection(Vector3 sourcePosition, Vector3 targetPosition)
