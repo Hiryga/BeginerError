@@ -144,10 +144,13 @@ public class EnemyAI : MonoBehaviour
             _wasProvoked = false;
             isChasingEnemy = false;
             _navMeshAgent.speed = _roamingSpeed;
-            _roamingTimer = 0f;
+            _roamingTimer = 0f; // сбрасываем таймер, чтобы сразу получить новую точку
             _currentState = State.Roaming;
+
+            Roaming();
         }
     }
+
 
     private void ChasingTarget()
     {
@@ -198,6 +201,8 @@ public class EnemyAI : MonoBehaviour
             {
                 _roamingTimer = 0f;
                 _navMeshAgent.speed = _roamingSpeed;
+                // ИСПРАВЛЕНИЕ: сразу устанавливаем точку патрулирования
+                Roaming();
             }
             else if (newState == State.Attacking)
             {
@@ -207,6 +212,7 @@ public class EnemyAI : MonoBehaviour
             _currentState = newState;
         }
     }
+
 
     private void AttackingTarget()
     {
