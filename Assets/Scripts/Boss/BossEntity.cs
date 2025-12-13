@@ -33,21 +33,29 @@ public class BossEntity : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        if (_currentHealth <= 0) return;
+        if (_currentHealth <= 0) return; // Уже мёртв
 
         _currentHealth -= damage;
         if (_currentHealth < 0) _currentHealth = 0;
 
         Debug.Log($"[Boss] HP: {_currentHealth}/{_maxHealth} ({GetHealthPercent() * 100:F0}%)");
 
-        OnTakeHit?.Invoke(this, EventArgs.Empty);
+        // Обновляем UI здоровья всегда
         OnHealthChanged?.Invoke(this, EventArgs.Empty);
 
-        // Стан босса при уроне
-        _bossAI?.Stun();
-
-        DetectDeath();
+        // Проверяем смерть ПЕРЕД анимацией получения урона
+        if (_currentHealth <= 0)
+        {
+            DetectDeath(); // Вызовет OnDeath, который установит _isDead = true
+        }
+        else
+        {
+            // Только если жив - показываем анимацию урона и станим
+            OnTakeHit?.Invoke(this, EventArgs.Empty);
+            _bossAI?.Stun();
+        }
     }
+
 
 
     public void PolygonColliderTurnOff()
