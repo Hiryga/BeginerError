@@ -9,12 +9,11 @@ public class AttackIndicator : MonoBehaviour
     private float fillTime = 1f;
     private float currentTime = 0f;
     private bool initialized = false;
-    private Vector3 targetScale;
 
     public void Initialize(float duration, float radius)
     {
         fillTime = duration;
-        targetScale = new Vector3(radius * 2, radius * 2, 1f);
+        Vector3 targetScale = new Vector3(radius * 2, radius * 2, 1f);
         initialized = true;
 
         if (spriteRenderer == null)
@@ -23,6 +22,7 @@ public class AttackIndicator : MonoBehaviour
         if (spriteRenderer != null)
         {
             spriteRenderer.color = startColor;
+            // ИСПРАВЛЕНИЕ: сразу устанавливаем полный размер
             transform.localScale = targetScale;
         }
         else
@@ -40,12 +40,8 @@ public class AttackIndicator : MonoBehaviour
             currentTime += Time.deltaTime;
             float progress = Mathf.Clamp01(currentTime / fillTime);
 
-            // прозрачность
+            // только прозрачность меняется
             spriteRenderer.color = Color.Lerp(startColor, endColor, progress);
-
-            // опционально – анимация роста круга
-            transform.localScale = Vector3.Lerp(Vector3.zero, targetScale, progress);
         }
     }
-
 }

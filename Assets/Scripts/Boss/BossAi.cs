@@ -301,4 +301,10 @@ public class BossAI : MonoBehaviour
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, attackRadius);
     }
+
+    public float GetAttackChargeTime()
+    {
+        return attackChargeTime;
+    }
+
 }
