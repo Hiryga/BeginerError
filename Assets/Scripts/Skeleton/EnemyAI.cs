@@ -31,7 +31,7 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] private float roamingTimerMax = 2f;
 
     [Header("Detection & Chasing")]
-    [SerializeField] private float detectionDistance = 5f;      // Радиус обнаружения игрока при патрулировании
+    [SerializeField] private float detectionDistance = 15f;      // Радиус обнаружения игрока при патрулировании
     [SerializeField] private float chasingSpeedMultiplier = 2f;
     [SerializeField] private float chaseTimeout = 3f;           // Как долго преследовать после провокации
 
